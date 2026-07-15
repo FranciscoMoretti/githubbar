@@ -9,7 +9,7 @@ The standalone product being designed in this repository; CodexBar is a design a
 _Avoid_: CodexBar plugin, CodexBar feature
 
 **Monitored account**:
-The single authenticated GitHub account whose accessible repositories supply GitHubBar's pull-request workload. Organization and repository filters may mute parts of that workload.
+The single authenticated GitHub account whose accessible repositories supply GitHubBar's pull-request workload. Repository scope selects the subset relevant on this Mac.
 _Avoid_: User, identity, profile
 
 **Account connection**:
@@ -48,8 +48,16 @@ _Avoid_: Drafts list, work in progress
 The people and teams requested to review a pull request, plus people who have already submitted a review. An empty roster stays empty rather than becoming a separate warning or workflow state.
 _Avoid_: Reviewer list, assignees, participants
 
+**Repository scope**:
+The device-local set of accessible repositories included in the active workload. It controls reconciliation, visible pull requests, and the review count, and defaults to all accessible repositories.
+_Avoid_: Mute list, notification filter
+
+**Review count**:
+The number of pull requests in Waiting for my review under the current Repository scope. It is GitHubBar's only proactive attention signal in the MVP.
+_Avoid_: Unread count, notification count
+
 **Active workload**:
-The pull requests in Waiting for my review and My PRs, potentially spanning hundreds of pull requests under a target throughput of 100 pull requests per day.
+The pull requests in Waiting for my review and My PRs under the current Repository scope, potentially spanning hundreds of pull requests under a target throughput of 100 pull requests per day.
 _Avoid_: Inbox, feed, history
 
 **Reconciliation**:
