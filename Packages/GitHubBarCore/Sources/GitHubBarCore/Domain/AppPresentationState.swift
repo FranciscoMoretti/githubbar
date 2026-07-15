@@ -96,6 +96,7 @@ public struct AccessCoverage: Codable, Equatable, Sendable {
 
 public enum RefreshHealthPresentation: Codable, Equatable, Sendable {
     case idle
+    case cached
     case fresh
     case partial(message: String)
     case failed(message: String)

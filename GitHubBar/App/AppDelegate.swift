@@ -15,6 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 commandRunner: ProcessCommandRunner()
             ),
             workloadClient: GraphQLGitHubWorkloadClient(),
+            snapshotStore: FileSnapshotStore(),
             settingsStore: UserDefaultsSettingsStore()
         )
         let model = AppModel(engine: engine)

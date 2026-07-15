@@ -5,6 +5,7 @@ public actor WorkloadEngine {
     private var subscribers: [UUID: AsyncStream<AppPresentationState>.Continuation] = [:]
     private let accountConnection: any AccountConnection
     private let workloadClient: any GitHubWorkloadClient
+    private let snapshotStore: any SnapshotStore
     private let settingsStore: any SettingsStore
     private var settings: AppSettings?
     private var resolvedAccount: ResolvedAccount?
@@ -14,11 +15,13 @@ public actor WorkloadEngine {
         initialState: AppPresentationState = .empty,
         accountConnection: any AccountConnection = UnavailableAccountConnection(),
         workloadClient: any GitHubWorkloadClient = UnavailableGitHubWorkloadClient(),
+        snapshotStore: any SnapshotStore = InMemorySnapshotStore(),
         settingsStore: any SettingsStore = InMemorySettingsStore()
     ) {
         state = initialState
         self.accountConnection = accountConnection
         self.workloadClient = workloadClient
+        self.snapshotStore = snapshotStore
         self.settingsStore = settingsStore
     }
 
@@ -39,6 +42,9 @@ public actor WorkloadEngine {
             let loadedSettings = await settingsStore.load()
             settings = loadedSettings
             state.repositoryScope = loadedSettings.repositoryScope
+            if let selectedLogin = loadedSettings.selectedLogin {
+                await restoreSnapshot(hostname: "github.com", accountLogin: selectedLogin)
+            }
             await inspectAccount(selectedLogin: loadedSettings.selectedLogin)
         case .recheckAccountConnection:
             let currentSettings = await currentSettings()
@@ -123,6 +129,7 @@ public actor WorkloadEngine {
         case let .complete(snapshot, _):
             apply(snapshot)
             state.refreshHealth = .fresh
+            try? await snapshotStore.save(snapshot)
         case let .partial(snapshot, metadata):
             apply(snapshot)
             state.refreshHealth = .partial(
@@ -143,6 +150,16 @@ public actor WorkloadEngine {
         state.waitingForReview = snapshot.waitingForReview
         state.authoredPullRequests = snapshot.authoredPullRequests
         state.lastUpdatedAt = snapshot.capturedAt
+    }
+
+    private func restoreSnapshot(hostname: String, accountLogin: String) async {
+        guard let snapshot = try? await snapshotStore.load(hostname: hostname, accountLogin: accountLogin),
+              snapshot.repositoryScope == state.repositoryScope else {
+            return
+        }
+        apply(snapshot)
+        state.refreshHealth = .cached
+        publish()
     }
 
     private func clearAccountDerivedPresentation() {

@@ -103,7 +103,12 @@ struct PopoverView: View {
         }
         if appModel.state.isRefreshing { return "Refreshing…" }
         guard let lastUpdatedAt = appModel.state.lastUpdatedAt else { return "Ready" }
-        return "Updated \(lastUpdatedAt.formatted(.relative(presentation: .named)))"
+        switch appModel.state.refreshHealth {
+        case .cached, .partial, .failed, .rateLimited:
+            return "Cached \(lastUpdatedAt.formatted(.relative(presentation: .named)))"
+        case .idle, .fresh:
+            return "Updated \(lastUpdatedAt.formatted(.relative(presentation: .named)))"
+        }
     }
 
     private var accountLabel: String {

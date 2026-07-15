@@ -36,6 +36,7 @@ enum GitHubBarCoreChecks {
 
         await checkAccountSelection(failures: &failures)
         failures.append(contentsOf: await WorkloadClientChecks.run())
+        failures.append(contentsOf: await SnapshotStoreChecks.run())
 
         if failures.isEmpty {
             print("GitHubBarCore checks passed")
