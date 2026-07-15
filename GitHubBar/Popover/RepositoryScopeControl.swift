@@ -1,9 +1,20 @@
 import GitHubBarCore
 import SwiftUI
 
+enum RepositoryScopeControlStyle {
+    case popover
+    case settings
+}
+
 struct RepositoryScopeControl: View {
     @Bindable var appModel: AppModel
+    let style: RepositoryScopeControlStyle
     @State private var isPickerPresented = false
+
+    init(appModel: AppModel, style: RepositoryScopeControlStyle = .popover) {
+        self.appModel = appModel
+        self.style = style
+    }
 
     var body: some View {
         Button {
@@ -13,7 +24,14 @@ struct RepositoryScopeControl: View {
                 Image(systemName: "folder")
                     .frame(width: 16)
                     .foregroundStyle(.secondary)
-                Text("Repositories")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(style == .popover ? "Repositories" : "Repository scope")
+                    if style == .settings {
+                        Text("Saved locally on this Mac")
+                            .font(.system(size: 9))
+                            .foregroundStyle(.secondary)
+                    }
+                }
                 Spacer(minLength: 8)
                 Text(scopeLabel)
                     .font(.system(size: 9.5))
@@ -26,8 +44,8 @@ struct RepositoryScopeControl: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .padding(.horizontal, 18)
-        .frame(height: 34)
+        .padding(.horizontal, style == .popover ? 18 : 0)
+        .frame(height: style == .popover ? 34 : 40)
         .accessibilityLabel("Choose repositories. Current selection: \(scopeLabel)")
         .popover(isPresented: $isPickerPresented, arrowEdge: .top) {
             RepositoryPicker(

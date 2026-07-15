@@ -5,11 +5,13 @@ import SwiftUI
 @MainActor
 final class StatusItemController: NSObject {
     private let appModel: AppModel
+    private let actions: AppActions
     private let statusItem: NSStatusItem
     private let popover: NSPopover
 
-    init(appModel: AppModel) {
+    init(appModel: AppModel, actions: AppActions = AppActions()) {
         self.appModel = appModel
+        self.actions = actions
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         popover = NSPopover()
         super.init()
@@ -36,7 +38,7 @@ final class StatusItemController: NSObject {
         popover.animates = !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         popover.contentSize = NSSize(width: 364, height: 520)
         popover.contentViewController = NSHostingController(
-            rootView: PopoverView(appModel: appModel)
+            rootView: PopoverView(appModel: appModel, actions: actions)
         )
     }
 

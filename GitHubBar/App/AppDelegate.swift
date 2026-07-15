@@ -6,6 +6,8 @@ import SwiftUI
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var appModel: AppModel?
     private var statusItemController: StatusItemController?
+    private var settingsWindowController: SettingsWindowController?
+    private var applicationMenuController: ApplicationMenuController?
     private var visualValidationWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -20,13 +22,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             workloadClient: workloadClient,
             snapshotStore: FileSnapshotStore(),
             settingsStore: UserDefaultsSettingsStore(),
-            diagnostics: OSLogReconciliationDiagnostics()
+            diagnostics: OSLogReconciliationDiagnostics(),
+            launchAtLoginController: MacLaunchAtLoginController()
         )
         let model = AppModel(engine: engine)
-        let statusItemController = StatusItemController(appModel: model)
+        let settingsWindowController = SettingsWindowController(
+            appModel: model,
+            updateController: DisabledUpdateController()
+        )
+        let actions = AppActions(
+            openSettings: { [weak settingsWindowController] in settingsWindowController?.show() },
+            openAbout: { [weak settingsWindowController] in settingsWindowController?.showAbout() }
+        )
+        let statusItemController = StatusItemController(appModel: model, actions: actions)
+        let applicationMenuController = ApplicationMenuController(appModel: model, actions: actions)
+        applicationMenuController.install()
 
         appModel = model
         self.statusItemController = statusItemController
+        self.settingsWindowController = settingsWindowController
+        self.applicationMenuController = applicationMenuController
 
         model.start()
         model.send(.launch)
@@ -38,7 +53,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         if ProcessInfo.processInfo.environment["GITHUBBAR_VISUAL_VALIDATION"] == "1" {
-            showVisualValidationWindow(appModel: model)
+            showVisualValidationWindow(appModel: model, actions: actions)
+        }
+        if ProcessInfo.processInfo.environment["GITHUBBAR_OPEN_SETTINGS"] == "1" {
+            DispatchQueue.main.async {
+                settingsWindowController.show()
+            }
         }
     }
 
@@ -46,7 +66,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         appModel?.stop()
     }
 
-    private func showVisualValidationWindow(appModel: AppModel) {
+    private func showVisualValidationWindow(appModel: AppModel, actions: AppActions) {
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 364, height: 520),
             styleMask: [.titled, .closable],
@@ -54,7 +74,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             defer: false
         )
         window.title = "GitHubBar Visual Validation"
-        window.contentView = NSHostingView(rootView: PopoverView(appModel: appModel))
+        window.contentView = NSHostingView(rootView: PopoverView(appModel: appModel, actions: actions))
         window.center()
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)

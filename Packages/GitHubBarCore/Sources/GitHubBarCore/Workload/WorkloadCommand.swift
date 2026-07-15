@@ -5,9 +5,25 @@ public enum WorkloadCommand: Equatable, Sendable {
     case manualRefresh
     case setPopoverOpen(Bool)
     case confirmAccount(String)
+    case requestAccountSelection
     case recheckAccountConnection
     case selectRepositoryScope(RepositoryScope)
     case setRefreshCadence(RefreshCadence)
+    case setLaunchAtLogin(Bool)
+}
+
+public extension RefreshCadence {
+    var displayName: String {
+        switch self {
+        case .adaptive: "Adaptive"
+        case .manual: "Manual only"
+        case .oneMinute: "Every minute"
+        case .twoMinutes: "Every 2 minutes"
+        case .fiveMinutes: "Every 5 minutes"
+        case .fifteenMinutes: "Every 15 minutes"
+        case .thirtyMinutes: "Every 30 minutes"
+        }
+    }
 }
 
 public enum RefreshCadence: Int, Codable, CaseIterable, Equatable, Sendable {

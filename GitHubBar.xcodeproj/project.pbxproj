@@ -8,31 +8,56 @@
 
 /* Begin PBXBuildFile section */
 		17D216F8F91FE77B7AE0AD34 /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A914524DE738D5B82F7761E /* Main.swift */; };
+		20DF0B41D014762ECA024BCB /* AppActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1BBCCEA1002710C169F6641 /* AppActions.swift */; };
 		24D394E5E965795763EAAEF4 /* StatusIconRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC8053760D622F2FF04D61B /* StatusIconRenderer.swift */; };
 		43A39E1D85DFA5D292E4D258 /* GitHubBarCore in Frameworks */ = {isa = PBXBuildFile; productRef = 10697BA3CB9F8BCD98262056 /* GitHubBarCore */; };
+		4E861E74CE10041FA7DDD5C3 /* ApplicationMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE41C26ABE21A457E830821 /* ApplicationMenuController.swift */; };
 		54C3DE85335363A079158DDF /* AccountConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 685E6864EC15CF08046AF835 /* AccountConnectionView.swift */; };
+		5545D32255BB93E13B0DD1B9 /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B84D614FD57185277F2F77F2 /* SettingsWindowController.swift */; };
+		65679A108BD941742103A172 /* MacLaunchAtLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 413C65D56097A21D67B2DFEC /* MacLaunchAtLoginController.swift */; };
+		6C570A0F606EA7D7AE56A2A2 /* UpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C39E485BC4A03542878D61F2 /* UpdateController.swift */; };
 		92D81BE0493C6FAEDF136177 /* RepositoryScopeControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D582835D6F15750A7B876847 /* RepositoryScopeControl.swift */; };
 		981043800D9A3D281B9FB819 /* MenuActionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AE4A990C81D192A301DE12 /* MenuActionRow.swift */; };
+		A9BA698E6D882DD71A2D7480 /* UpdateControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B9813F72CF2F4CB20333095 /* UpdateControllerTests.swift */; };
 		AC9E4DF525406EC58650E413 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FCA7F94A99E37FDFC8C9470 /* AppDelegate.swift */; };
 		B5EB0FFF8FE8ACFF9C185652 /* PullRequestRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6CF0FB24B12896466FD2E72 /* PullRequestRow.swift */; };
+		C0EFC1B2F18736A240AC0F16 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DC54AA23EDF526A120E685B /* SettingsView.swift */; };
 		C4365C499C9F8EFB21D56CBC /* PopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38380275717FD18A95869865 /* PopoverView.swift */; };
 		DE1ED625BE58BCFBBAF98CC9 /* WorkloadSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9BBAE50AD7E339CECA2EAA2 /* WorkloadSection.swift */; };
 		E4D2AA6C419BAA7A57217BE8 /* StatusItemController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08B252F35CACF12F8B1CA03 /* StatusItemController.swift */; };
 		F751EBF210E1E91BB7E0B863 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A06FCA62CDE78A733A5E75 /* AppModel.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		8AD9B34FB18D02E32A1E2CF3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 922DF8998C5CE548D87DE52F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B891217D4FC14D04B6B1A200;
+			remoteInfo = GitHubBar;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		0CC8053760D622F2FF04D61B /* StatusIconRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusIconRenderer.swift; sourceTree = "<group>"; };
 		15A06FCA62CDE78A733A5E75 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		38380275717FD18A95869865 /* PopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverView.swift; sourceTree = "<group>"; };
+		3B9813F72CF2F4CB20333095 /* UpdateControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateControllerTests.swift; sourceTree = "<group>"; };
+		413C65D56097A21D67B2DFEC /* MacLaunchAtLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacLaunchAtLoginController.swift; sourceTree = "<group>"; };
+		5CE41C26ABE21A457E830821 /* ApplicationMenuController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationMenuController.swift; sourceTree = "<group>"; };
 		685E6864EC15CF08046AF835 /* AccountConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountConnectionView.swift; sourceTree = "<group>"; };
 		6FCA7F94A99E37FDFC8C9470 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		78AE4A990C81D192A301DE12 /* MenuActionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuActionRow.swift; sourceTree = "<group>"; };
 		8A914524DE738D5B82F7761E /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
+		995B46C428EA3A7FD5CFB7E0 /* GitHubBarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GitHubBarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9DC54AA23EDF526A120E685B /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A08B252F35CACF12F8B1CA03 /* StatusItemController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemController.swift; sourceTree = "<group>"; };
 		A9BBAE50AD7E339CECA2EAA2 /* WorkloadSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkloadSection.swift; sourceTree = "<group>"; };
 		AA99EBD1853442455EADF839 /* GitHubBarCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GitHubBarCore; path = Packages/GitHubBarCore; sourceTree = SOURCE_ROOT; };
+		B1BBCCEA1002710C169F6641 /* AppActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppActions.swift; sourceTree = "<group>"; };
 		B6CF0FB24B12896466FD2E72 /* PullRequestRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullRequestRow.swift; sourceTree = "<group>"; };
+		B84D614FD57185277F2F77F2 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
+		C39E485BC4A03542878D61F2 /* UpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateController.swift; sourceTree = "<group>"; };
 		D15FD62343E9B992072D0358 /* GitHubBar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GitHubBar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D582835D6F15750A7B876847 /* RepositoryScopeControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepositoryScopeControl.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -53,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				4DF240D8141602804745F7BE /* GitHubBar */,
+				1C30734206E57128FA29FCC6 /* GitHubBarTests */,
 				0DAAB9F6FEFEED7BA5F9E27D /* Packages */,
 				9D9B197E0DA94886CC0492C6 /* Products */,
 			);
@@ -64,6 +90,24 @@
 				AA99EBD1853442455EADF839 /* GitHubBarCore */,
 			);
 			path = Packages;
+			sourceTree = "<group>";
+		};
+		1C30734206E57128FA29FCC6 /* GitHubBarTests */ = {
+			isa = PBXGroup;
+			children = (
+				3B9813F72CF2F4CB20333095 /* UpdateControllerTests.swift */,
+			);
+			path = GitHubBarTests;
+			sourceTree = "<group>";
+		};
+		1DE02AB997A254889A3EA47C /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				413C65D56097A21D67B2DFEC /* MacLaunchAtLoginController.swift */,
+				9DC54AA23EDF526A120E685B /* SettingsView.swift */,
+				B84D614FD57185277F2F77F2 /* SettingsWindowController.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		1ED7C47E351A59C890B995F7 /* Popover */ = {
@@ -84,7 +128,9 @@
 			children = (
 				96DF2C70DB1C6ECCF2CE1A7C /* App */,
 				1ED7C47E351A59C890B995F7 /* Popover */,
+				1DE02AB997A254889A3EA47C /* Settings */,
 				510DF463139BB7332C9A1393 /* StatusItem */,
+				FB7B75FB3ED8350CA3FFC76A /* Updates */,
 			);
 			path = GitHubBar;
 			sourceTree = "<group>";
@@ -101,7 +147,9 @@
 		96DF2C70DB1C6ECCF2CE1A7C /* App */ = {
 			isa = PBXGroup;
 			children = (
+				B1BBCCEA1002710C169F6641 /* AppActions.swift */,
 				6FCA7F94A99E37FDFC8C9470 /* AppDelegate.swift */,
+				5CE41C26ABE21A457E830821 /* ApplicationMenuController.swift */,
 				15A06FCA62CDE78A733A5E75 /* AppModel.swift */,
 				8A914524DE738D5B82F7761E /* Main.swift */,
 			);
@@ -112,13 +160,40 @@
 			isa = PBXGroup;
 			children = (
 				D15FD62343E9B992072D0358 /* GitHubBar.app */,
+				995B46C428EA3A7FD5CFB7E0 /* GitHubBarTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		FB7B75FB3ED8350CA3FFC76A /* Updates */ = {
+			isa = PBXGroup;
+			children = (
+				C39E485BC4A03542878D61F2 /* UpdateController.swift */,
+			);
+			path = Updates;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		74C204BD8752C53AECD260EE /* GitHubBarTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FA273A656B1183E4C1923026 /* Build configuration list for PBXNativeTarget "GitHubBarTests" */;
+			buildPhases = (
+				C26C1CC352B77D8A5BDFF75F /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8831B127D816BE224F945AA6 /* PBXTargetDependency */,
+			);
+			name = GitHubBarTests;
+			packageProductDependencies = (
+			);
+			productName = GitHubBarTests;
+			productReference = 995B46C428EA3A7FD5CFB7E0 /* GitHubBarTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		B891217D4FC14D04B6B1A200 /* GitHubBar */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3F9729B1804DD8BEB4CFB8B4 /* Build configuration list for PBXNativeTarget "GitHubBar" */;
@@ -170,32 +245,71 @@
 			projectRoot = "";
 			targets = (
 				B891217D4FC14D04B6B1A200 /* GitHubBar */,
+				74C204BD8752C53AECD260EE /* GitHubBarTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		C26C1CC352B77D8A5BDFF75F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A9BA698E6D882DD71A2D7480 /* UpdateControllerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E54B3F50E8F2F251A09AD86A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				54C3DE85335363A079158DDF /* AccountConnectionView.swift in Sources */,
+				20DF0B41D014762ECA024BCB /* AppActions.swift in Sources */,
 				AC9E4DF525406EC58650E413 /* AppDelegate.swift in Sources */,
 				F751EBF210E1E91BB7E0B863 /* AppModel.swift in Sources */,
+				4E861E74CE10041FA7DDD5C3 /* ApplicationMenuController.swift in Sources */,
+				65679A108BD941742103A172 /* MacLaunchAtLoginController.swift in Sources */,
 				17D216F8F91FE77B7AE0AD34 /* Main.swift in Sources */,
 				981043800D9A3D281B9FB819 /* MenuActionRow.swift in Sources */,
 				C4365C499C9F8EFB21D56CBC /* PopoverView.swift in Sources */,
 				B5EB0FFF8FE8ACFF9C185652 /* PullRequestRow.swift in Sources */,
 				92D81BE0493C6FAEDF136177 /* RepositoryScopeControl.swift in Sources */,
+				C0EFC1B2F18736A240AC0F16 /* SettingsView.swift in Sources */,
+				5545D32255BB93E13B0DD1B9 /* SettingsWindowController.swift in Sources */,
 				24D394E5E965795763EAAEF4 /* StatusIconRenderer.swift in Sources */,
 				E4D2AA6C419BAA7A57217BE8 /* StatusItemController.swift in Sources */,
+				6C570A0F606EA7D7AE56A2A2 /* UpdateController.swift in Sources */,
 				DE1ED625BE58BCFBBAF98CC9 /* WorkloadSection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		8831B127D816BE224F945AA6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B891217D4FC14D04B6B1A200 /* GitHubBar */;
+			targetProxy = 8AD9B34FB18D02E32A1E2CF3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		1C2457CBC74D21FDF4006671 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.franciscomoretti.GitHubBarTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GitHubBar.app/Contents/MacOS/GitHubBar";
+			};
+			name = Release;
+		};
 		4A8491EA77F38B760EF662D4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -339,6 +453,22 @@
 			};
 			name = Debug;
 		};
+		CE4B8F79A22BA739035E562A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.franciscomoretti.GitHubBarTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GitHubBar.app/Contents/MacOS/GitHubBar";
+			};
+			name = Debug;
+		};
 		FAB11F584ED52EA2C9371924 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -376,6 +506,15 @@
 			buildConfigurations = (
 				7C173357AC54452EDF3DF09E /* Debug */,
 				4A8491EA77F38B760EF662D4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		FA273A656B1183E4C1923026 /* Build configuration list for PBXNativeTarget "GitHubBarTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CE4B8F79A22BA739035E562A /* Debug */,
+				1C2457CBC74D21FDF4006671 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

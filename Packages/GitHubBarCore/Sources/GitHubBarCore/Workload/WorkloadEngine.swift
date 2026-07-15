@@ -9,6 +9,7 @@ public actor WorkloadEngine {
     private let settingsStore: any SettingsStore
     private let clock: any RefreshClock
     private let diagnostics: any ReconciliationDiagnostics
+    private let launchAtLoginController: any LaunchAtLoginControlling
 
     private var settings: AppSettings?
     private var resolvedAccount: ResolvedAccount?
@@ -36,7 +37,8 @@ public actor WorkloadEngine {
         snapshotStore: any SnapshotStore = InMemorySnapshotStore(),
         settingsStore: any SettingsStore = InMemorySettingsStore(),
         clock: any RefreshClock = SystemRefreshClock(),
-        diagnostics: any ReconciliationDiagnostics = NoopReconciliationDiagnostics()
+        diagnostics: any ReconciliationDiagnostics = NoopReconciliationDiagnostics(),
+        launchAtLoginController: any LaunchAtLoginControlling = UnavailableLaunchAtLoginController()
     ) {
         state = initialState
         self.accountConnection = accountConnection
@@ -45,6 +47,7 @@ public actor WorkloadEngine {
         self.settingsStore = settingsStore
         self.clock = clock
         self.diagnostics = diagnostics
+        self.launchAtLoginController = launchAtLoginController
     }
 
     deinit {
@@ -70,6 +73,9 @@ public actor WorkloadEngine {
             let loadedSettings = await settingsStore.load()
             settings = loadedSettings
             state.repositoryScope = loadedSettings.repositoryScope
+            state.refreshCadence = loadedSettings.refreshCadence
+            state.launchAtLoginRequested = loadedSettings.launchAtLogin
+            state.launchAtLoginStatus = await launchAtLoginController.status()
             if let selectedLogin = loadedSettings.selectedLogin {
                 await restoreSnapshot(hostname: "github.com", accountLogin: selectedLogin)
             }
@@ -89,6 +95,14 @@ public actor WorkloadEngine {
             await settingsStore.save(currentSettings)
             await inspectAccount(selectedLogin: login, trigger: .accountChanged)
             await restartRefreshTimer()
+        case .requestAccountSelection:
+            invalidatePublication(clearPresentation: true)
+            var currentSettings = await currentSettings()
+            currentSettings.selectedLogin = nil
+            settings = currentSettings
+            await settingsStore.save(currentSettings)
+            await inspectAccount(selectedLogin: nil, trigger: .accountChanged)
+            await restartRefreshTimer()
         case let .selectRepositoryScope(scope):
             guard state.repositoryScope != scope else { return }
             invalidatePublication(clearPresentation: false)
@@ -103,8 +117,24 @@ public actor WorkloadEngine {
             var currentSettings = await currentSettings()
             currentSettings.refreshCadence = cadence
             settings = currentSettings
+            state.refreshCadence = cadence
             await settingsStore.save(currentSettings)
+            publish()
             await restartRefreshTimer()
+        case let .setLaunchAtLogin(isEnabled):
+            let status = await launchAtLoginController.setEnabled(isEnabled)
+            state.launchAtLoginStatus = status
+            switch status {
+            case .enabled, .disabled, .requiresApproval:
+                var currentSettings = await currentSettings()
+                currentSettings.launchAtLogin = isEnabled
+                settings = currentSettings
+                state.launchAtLoginRequested = isEnabled
+                await settingsStore.save(currentSettings)
+            case .failed, .unavailable:
+                break
+            }
+            publish()
         case .manualRefresh:
             rateLimitRetryTask?.cancel()
             rateLimitRetryTask = nil

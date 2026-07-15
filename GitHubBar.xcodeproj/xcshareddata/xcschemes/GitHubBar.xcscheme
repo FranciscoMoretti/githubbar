@@ -21,6 +21,20 @@
                ReferencedContainer = "container:GitHubBar.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "74C204BD8752C53AECD260EE"
+               BuildableName = "GitHubBarTests.xctest"
+               BlueprintName = "GitHubBarTests"
+               ReferencedContainer = "container:GitHubBar.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction

@@ -10,6 +10,7 @@ enum ReconciliationChecks {
         failures.append(contentsOf: await checkAccountRace())
         failures.append(contentsOf: await checkRateLimitRetryBound())
         failures.append(contentsOf: await checkSchedulingTransitions())
+        failures.append(contentsOf: await checkLaunchAtLoginMapping())
         failures.append(contentsOf: await checkPopoverOpenRefresh())
         failures.append(contentsOf: checkAdaptivePolicy())
         failures.append(contentsOf: await checkLargeWorkload())
@@ -174,6 +175,38 @@ enum ReconciliationChecks {
 
         var failures: [String] = []
         check(await client.requestCount == 2, "A sustained Popover open refreshes through the same lane", failures: &failures)
+        return failures
+    }
+
+    private static func checkLaunchAtLoginMapping() async -> [String] {
+        let controller = RecordingLaunchAtLoginController()
+        let settings = InMemorySettingsStore(
+            settings: AppSettings(selectedLogin: "FranciscoMoretti", refreshCadence: .manual)
+        )
+        let engine = WorkloadEngine(
+            accountConnection: ReconciliationAccountConnection(),
+            workloadClient: ScriptedWorkloadClient(results: [.complete(snapshot(ids: []), .empty)]),
+            settingsStore: settings,
+            launchAtLoginController: controller
+        )
+        await engine.send(.launch)
+        await engine.send(.setLaunchAtLogin(true))
+        var state = await latestState(from: engine)
+
+        var failures: [String] = []
+        check(state.launchAtLoginRequested, "Launch at login opt-in publishes", failures: &failures)
+        check(state.launchAtLoginStatus == .enabled, "Launch at login registration state maps to presentation", failures: &failures)
+        check(await settings.load().launchAtLogin, "Launch at login opt-in persists through SettingsStore", failures: &failures)
+
+        await controller.failNextChange()
+        await engine.send(.setLaunchAtLogin(false))
+        state = await latestState(from: engine)
+        if case .failed = state.launchAtLoginStatus {
+            check(true, "Launch at login failures publish actionably", failures: &failures)
+        } else {
+            failures.append("FAILED: Launch at login failures publish actionably")
+        }
+        check(await settings.load().launchAtLogin, "Failed launch registration does not persist a false state", failures: &failures)
         return failures
     }
 
@@ -370,5 +403,27 @@ private struct AccountEchoWorkloadClient: GitHubWorkloadClient {
             ),
             .empty
         )
+    }
+}
+
+private actor RecordingLaunchAtLoginController: LaunchAtLoginControlling {
+    private var enabled = false
+    private var shouldFail = false
+
+    func status() async -> LaunchAtLoginStatus {
+        enabled ? .enabled : .disabled
+    }
+
+    func setEnabled(_ isEnabled: Bool) async -> LaunchAtLoginStatus {
+        if shouldFail {
+            shouldFail = false
+            return .failed(message: "Open System Settings and allow GitHubBar in Login Items.")
+        }
+        enabled = isEnabled
+        return isEnabled ? .enabled : .disabled
+    }
+
+    func failNextChange() {
+        shouldFail = true
     }
 }

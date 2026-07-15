@@ -9,6 +9,9 @@ public struct AppPresentationState: Codable, Equatable, Sendable {
     public var authoredPullRequests: [PullRequestPresentation]
     public var lastUpdatedAt: Date?
     public var isRefreshing: Bool
+    public var refreshCadence: RefreshCadence
+    public var launchAtLoginRequested: Bool
+    public var launchAtLoginStatus: LaunchAtLoginStatus
 
     public init(
         accountConnection: AccountConnectionPresentation,
@@ -18,7 +21,10 @@ public struct AppPresentationState: Codable, Equatable, Sendable {
         waitingForReview: [PullRequestPresentation],
         authoredPullRequests: [PullRequestPresentation],
         lastUpdatedAt: Date?,
-        isRefreshing: Bool
+        isRefreshing: Bool,
+        refreshCadence: RefreshCadence,
+        launchAtLoginRequested: Bool,
+        launchAtLoginStatus: LaunchAtLoginStatus
     ) {
         self.accountConnection = accountConnection
         self.refreshHealth = refreshHealth
@@ -28,6 +34,9 @@ public struct AppPresentationState: Codable, Equatable, Sendable {
         self.authoredPullRequests = authoredPullRequests
         self.lastUpdatedAt = lastUpdatedAt
         self.isRefreshing = isRefreshing
+        self.refreshCadence = refreshCadence
+        self.launchAtLoginRequested = launchAtLoginRequested
+        self.launchAtLoginStatus = launchAtLoginStatus
     }
 
     public static let empty = AppPresentationState(
@@ -38,7 +47,10 @@ public struct AppPresentationState: Codable, Equatable, Sendable {
         waitingForReview: [],
         authoredPullRequests: [],
         lastUpdatedAt: nil,
-        isRefreshing: false
+        isRefreshing: false,
+        refreshCadence: .fiveMinutes,
+        launchAtLoginRequested: false,
+        launchAtLoginStatus: .disabled
     )
 
     public var reviewCount: Int {

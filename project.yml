@@ -35,12 +35,23 @@ targets:
         CODE_SIGN_STYLE: Automatic
         CURRENT_PROJECT_VERSION: 1
         MARKETING_VERSION: 0.1.0
+  GitHubBarTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: GitHubBarTests
+    dependencies:
+      - target: GitHubBar
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.franciscomoretti.GitHubBarTests
 
 schemes:
   GitHubBar:
     build:
       targets:
         GitHubBar: all
+        GitHubBarTests: [test]
     run:
       config: Debug
     archive:

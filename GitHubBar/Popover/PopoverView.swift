@@ -4,6 +4,12 @@ import SwiftUI
 
 struct PopoverView: View {
     @Bindable var appModel: AppModel
+    let actions: AppActions
+
+    init(appModel: AppModel, actions: AppActions = AppActions()) {
+        self.appModel = appModel
+        self.actions = actions
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -88,9 +94,11 @@ struct PopoverView: View {
                     appModel.send(.manualRefresh)
                 }
             }
-            MenuActionRow(title: "Settings…", systemImage: "gearshape", shortcut: "⌘ ,") {}
+            MenuActionRow(title: "Settings…", systemImage: "gearshape", shortcut: "⌘ ,") {
+                actions.openSettings()
+            }
             MenuActionRow(title: "About GitHubBar", systemImage: "info.circle") {
-                NSApp.orderFrontStandardAboutPanel(nil)
+                actions.openAbout()
             }
             MenuActionRow(title: "Quit", systemImage: "rectangle.portrait.and.arrow.right", shortcut: "⌘ Q") {
                 NSApp.terminate(nil)
