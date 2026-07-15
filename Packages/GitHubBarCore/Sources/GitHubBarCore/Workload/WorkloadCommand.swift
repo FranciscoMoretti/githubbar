@@ -11,7 +11,10 @@ public enum WorkloadCommand: Equatable, Sendable {
 }
 
 public enum RefreshCadence: Int, Codable, CaseIterable, Equatable, Sendable {
+    case adaptive = -1
+    case manual = 0
     case oneMinute = 60
+    case twoMinutes = 120
     case fiveMinutes = 300
     case fifteenMinutes = 900
     case thirtyMinutes = 1_800

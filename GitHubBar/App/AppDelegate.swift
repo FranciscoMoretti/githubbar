@@ -9,14 +9,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var visualValidationWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        let workloadClient: any GitHubWorkloadClient = ProcessInfo.processInfo.environment["GITHUBBAR_FAILURE_DEMO"] == "1"
+            ? UnavailableGitHubWorkloadClient()
+            : GraphQLGitHubWorkloadClient()
         let engine = WorkloadEngine(
             accountConnection: GitHubCLIAccountConnection(
                 executableLocator: GitHubCLIExecutableLocator(),
                 commandRunner: ProcessCommandRunner()
             ),
-            workloadClient: GraphQLGitHubWorkloadClient(),
+            workloadClient: workloadClient,
             snapshotStore: FileSnapshotStore(),
-            settingsStore: UserDefaultsSettingsStore()
+            settingsStore: UserDefaultsSettingsStore(),
+            diagnostics: OSLogReconciliationDiagnostics()
         )
         let model = AppModel(engine: engine)
         let statusItemController = StatusItemController(appModel: model)

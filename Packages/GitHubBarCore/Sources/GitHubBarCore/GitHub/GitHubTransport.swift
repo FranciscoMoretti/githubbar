@@ -18,7 +18,7 @@ public protocol GitHubTransport: Sendable {
 
 public enum GitHubTransportError: Error, Sendable {
     case invalidResponse
-    case http(statusCode: Int, retryAfter: TimeInterval?)
+    case http(statusCode: Int, retryAfter: TimeInterval?, rateLimitResetAt: Date?)
 }
 
 public struct URLSessionGitHubTransport: GitHubTransport {
@@ -55,7 +55,14 @@ public struct URLSessionGitHubTransport: GitHubTransport {
 
         guard (200..<300).contains(httpResponse.statusCode) else {
             let retryAfter = headers["retry-after"].flatMap(TimeInterval.init)
-            throw GitHubTransportError.http(statusCode: httpResponse.statusCode, retryAfter: retryAfter)
+            let rateLimitResetAt = headers["x-ratelimit-reset"]
+                .flatMap(TimeInterval.init)
+                .map(Date.init(timeIntervalSince1970:))
+            throw GitHubTransportError.http(
+                statusCode: httpResponse.statusCode,
+                retryAfter: retryAfter,
+                rateLimitResetAt: rateLimitResetAt
+            )
         }
 
         return GitHubTransportResponse(statusCode: httpResponse.statusCode, headers: headers, data: data)

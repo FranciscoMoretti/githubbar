@@ -25,6 +25,7 @@ public struct GraphQLGitHubWorkloadClient: GitHubWorkloadClient {
             repositoryCatalog = output.value
             metadata.merge(output.metadata)
         } catch {
+            metadata.record(error: error)
             return .failed(failure(for: error, fallback: .discovery), metadata.presentation)
         }
         let repositoryQualifiers = makeRepositoryQualifiers(
@@ -39,6 +40,7 @@ public struct GraphQLGitHubWorkloadClient: GitHubWorkloadClient {
             teams = output.value
             metadata.merge(output.metadata)
         } catch {
+            metadata.record(error: error)
             return .failed(failure(for: error, fallback: .discovery), metadata.presentation)
         }
 
@@ -52,6 +54,7 @@ public struct GraphQLGitHubWorkloadClient: GitHubWorkloadClient {
             directIDs = output.value
             metadata.merge(output.metadata)
         } catch {
+            metadata.record(error: error)
             return .failed(failure(for: error, fallback: .discovery), metadata.presentation)
         }
 
@@ -66,7 +69,7 @@ public struct GraphQLGitHubWorkloadClient: GitHubWorkloadClient {
                 teamIDs.append(contentsOf: output.value)
                 metadata.merge(output.metadata)
             } catch {
-                metadata.warnings.append("team-review discovery incomplete")
+                metadata.record(error: error, warning: "team-review discovery incomplete")
             }
         }
 
@@ -80,6 +83,7 @@ public struct GraphQLGitHubWorkloadClient: GitHubWorkloadClient {
             authoredIDs = output.value
             metadata.merge(output.metadata)
         } catch {
+            metadata.record(error: error)
             return .failed(failure(for: error, fallback: .discovery), metadata.presentation)
         }
 
@@ -94,7 +98,7 @@ public struct GraphQLGitHubWorkloadClient: GitHubWorkloadClient {
                 hydratedRecords.append(contentsOf: output.value)
                 metadata.merge(output.metadata)
             } catch {
-                metadata.warnings.append("pull-request hydration incomplete")
+                metadata.record(error: error, warning: "pull-request hydration incomplete")
             }
         }
 
@@ -397,7 +401,7 @@ public struct GraphQLGitHubWorkloadClient: GitHubWorkloadClient {
 
     private func failure(for error: Error?, fallback: WorkloadFailure) -> WorkloadFailure {
         guard let error else { return fallback }
-        if case let GitHubTransportError.http(statusCode, _) = error, statusCode == 403 || statusCode == 429 {
+        if case let GitHubTransportError.http(statusCode, _, _) = error, statusCode == 403 || statusCode == 429 {
             return .rateLimited
         }
         return fallback
@@ -567,6 +571,15 @@ private struct MetadataAccumulator {
     var remainingPoints: Int?
     var resetAt: Date?
     var warnings: [String] = []
+
+    mutating func record(error: Error, warning: String? = nil) {
+        if let warning { warnings.append(warning) }
+        guard case let GitHubTransportError.http(_, retryAfter, rateLimitResetAt) = error else { return }
+        let retryAt = retryAfter.map { Date().addingTimeInterval($0) }
+        if let candidate = rateLimitResetAt ?? retryAt {
+            resetAt = max(resetAt ?? .distantPast, candidate)
+        }
+    }
 
     mutating func record(rateLimit: RateLimitDTO, hasErrors: Bool, warning: String) {
         queryCost += rateLimit.cost

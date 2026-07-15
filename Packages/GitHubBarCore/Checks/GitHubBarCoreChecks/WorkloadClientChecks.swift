@@ -38,11 +38,34 @@ enum WorkloadClientChecks {
             "Repository scope constrains every discovery search",
             failures: &failures
         )
+
+        let rateLimitStart = Date()
+        let rateLimitedClient = GraphQLGitHubWorkloadClient(transport: RateLimitedFixtureTransport())
+        let rateLimitedResult = await rateLimitedClient.reconcile(
+            account: account,
+            repositoryScope: .all,
+            previousSnapshot: nil
+        )
+        if case let .failed(.rateLimited, metadata) = rateLimitedResult {
+            check(
+                metadata.resetAt.map { $0 >= rateLimitStart.addingTimeInterval(59) } == true,
+                "Retry-After metadata informs rate-limit recovery",
+                failures: &failures
+            )
+        } else {
+            failures.append("FAILED: HTTP rate limits retain retry metadata")
+        }
         return failures
     }
 
     private static func check(_ condition: Bool, _ message: String, failures: inout [String]) {
         if !condition { failures.append("FAILED: \(message)") }
+    }
+}
+
+private struct RateLimitedFixtureTransport: GitHubTransport {
+    func execute(body: Data, accessToken: GitHubAccessToken) async throws -> GitHubTransportResponse {
+        throw GitHubTransportError.http(statusCode: 429, retryAfter: 60, rateLimitResetAt: nil)
     }
 }
 
