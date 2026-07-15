@@ -1,0 +1,47 @@
+name: GitHubBar
+
+options:
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+
+packages:
+  GitHubBarCore:
+    path: Packages/GitHubBarCore
+
+settings:
+  base:
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+
+targets:
+  GitHubBar:
+    type: application
+    platform: macOS
+    sources:
+      - path: GitHubBar
+        excludes:
+          - Resources/Info.plist
+    dependencies:
+      - package: GitHubBarCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.franciscomoretti.GitHubBar
+        PRODUCT_NAME: GitHubBar
+        INFOPLIST_FILE: GitHubBar/Resources/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_STYLE: Automatic
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 0.1.0
+
+schemes:
+  GitHubBar:
+    build:
+      targets:
+        GitHubBar: all
+    run:
+      config: Debug
+    archive:
+      config: Release
