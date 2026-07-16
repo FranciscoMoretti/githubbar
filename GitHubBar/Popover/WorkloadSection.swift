@@ -20,20 +20,20 @@ struct WorkloadSection: View {
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
             }
-            .padding(.bottom, 3)
+            .padding(.bottom, pullRequests.isEmpty ? 1 : 3)
 
             if pullRequests.isEmpty {
                 Text(emptyMessage)
                     .font(.system(size: 10))
                     .foregroundStyle(.tertiary)
-                    .padding(.vertical, 9)
+                    .padding(.vertical, 2)
             } else {
                 ForEach(pullRequests) { pullRequest in
                     PullRequestRow(pullRequest: pullRequest, showsRepository: showsRepository)
                 }
             }
         }
-        .padding(.vertical, 11)
+        .padding(.vertical, pullRequests.isEmpty ? 8 : 11)
         .overlay(alignment: .bottom) {
             if showsBottomDivider { Divider() }
         }

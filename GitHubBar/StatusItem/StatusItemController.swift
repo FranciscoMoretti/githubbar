@@ -36,7 +36,10 @@ final class StatusItemController: NSObject {
     private func configurePopover() {
         popover.behavior = .transient
         popover.animates = !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
-        popover.contentSize = NSSize(width: 364, height: 520)
+        popover.contentSize = NSSize(
+            width: PopoverView.preferredWidth,
+            height: PopoverView.preferredHeight
+        )
         popover.contentViewController = NSHostingController(
             rootView: PopoverView(appModel: appModel, actions: actions)
         )

@@ -10,11 +10,11 @@ struct PullRequestRow: View {
         Button {
             NSWorkspace.shared.open(pullRequest.url)
         } label: {
-            HStack(alignment: .center, spacing: 7) {
+            HStack(alignment: .center, spacing: 6) {
                 pullRequestStatus
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(pullRequest.title)
-                        .font(.system(size: 11.5, weight: .medium))
+                        .font(.system(size: 11.5, weight: .regular))
                         .lineLimit(1)
                     HStack(spacing: 7) {
                         Text(metadataLabel)
@@ -28,6 +28,7 @@ struct PullRequestRow: View {
                     }
                 }
             }
+            .padding(.vertical, 1)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -45,16 +46,16 @@ struct PullRequestRow: View {
     private var pullRequestStatus: some View {
         ZStack(alignment: .bottomTrailing) {
             Image(systemName: "arrow.triangle.branch")
-                .font(.system(size: 12))
+                .font(.system(size: 10))
                 .foregroundStyle(.secondary)
             Circle()
                 .fill(pullRequest.isDraft ? Color.clear : Color.green)
                 .stroke(pullRequest.isDraft ? Color.secondary : Color.clear, lineWidth: 1)
-                .frame(width: 6, height: 6)
+                .frame(width: 5, height: 5)
                 .background(Color(nsColor: .windowBackgroundColor), in: Circle())
-                .offset(x: 1, y: 1)
+                .offset(x: 0.5, y: 0.5)
         }
-        .frame(width: 20, height: 20)
+        .frame(width: 16, height: 16)
         .accessibilityLabel(pullRequest.isDraft ? "Draft pull request" : "Open pull request")
     }
 
@@ -77,14 +78,14 @@ private struct ReviewerRosterView: View {
     let reviewers: [ReviewerPresentation]
 
     var body: some View {
-        HStack(spacing: -5) {
+        HStack(spacing: -4) {
             ForEach(Array(reviewers.prefix(4))) { reviewer in
                 ReviewerAvatar(reviewer: reviewer)
             }
             if reviewers.count > 4 {
                 Text("+\(reviewers.count - 4)")
-                    .font(.system(size: 7, weight: .semibold))
-                    .frame(width: 18, height: 18)
+                    .font(.system(size: 6.5, weight: .semibold))
+                    .frame(width: 16, height: 16)
                     .background(.regularMaterial, in: Circle())
                     .overlay { Circle().stroke(.white.opacity(0.15), lineWidth: 1) }
             }
@@ -111,11 +112,11 @@ private struct ReviewerAvatar: View {
                 fallback
             }
         }
-        .frame(width: 18, height: 18)
-        .clipShape(reviewer.kind == .team ? AnyShape(RoundedRectangle(cornerRadius: 5)) : AnyShape(Circle()))
+        .frame(width: 16, height: 16)
+        .clipShape(reviewer.kind == .team ? AnyShape(RoundedRectangle(cornerRadius: 4.5)) : AnyShape(Circle()))
         .overlay {
             if reviewer.kind == .team {
-                RoundedRectangle(cornerRadius: 5).stroke(.black.opacity(0.55), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 4.5).stroke(.black.opacity(0.55), lineWidth: 1)
             } else {
                 Circle().stroke(.black.opacity(0.55), lineWidth: 1)
             }
@@ -125,7 +126,7 @@ private struct ReviewerAvatar: View {
 
     private var fallback: some View {
         Text(initials)
-            .font(.system(size: 6.5, weight: .bold))
+            .font(.system(size: 6, weight: .bold))
             .foregroundStyle(.primary)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(.regularMaterial)

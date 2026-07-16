@@ -3,6 +3,10 @@ import GitHubBarCore
 import SwiftUI
 
 struct PopoverView: View {
+    static let preferredWidth: CGFloat = 364
+    static let preferredHeight: CGFloat = 700
+    static let maximumHeight: CGFloat = 760
+
     @Bindable var appModel: AppModel
     let actions: AppActions
 
@@ -53,8 +57,8 @@ struct PopoverView: View {
             }
             footer
         }
-        .frame(width: 364)
-        .frame(minHeight: 470, idealHeight: 520, maxHeight: 760)
+        .frame(width: Self.preferredWidth)
+        .frame(minHeight: 470, idealHeight: Self.preferredHeight, maxHeight: Self.maximumHeight)
         .background(VisualEffectBackground())
         .environment(\.colorScheme, .dark)
     }
