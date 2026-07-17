@@ -12,7 +12,7 @@ enum ReconciliationChecks {
         failures.append(contentsOf: await checkPartialRateLimitRetry())
         failures.append(contentsOf: await checkSchedulingTransitions())
         failures.append(contentsOf: await checkLaunchAtLoginMapping())
-        failures.append(contentsOf: await checkPopoverOpenRefresh())
+        failures.append(contentsOf: await checkWorkloadSurfaceOpenRefresh())
         failures.append(contentsOf: checkAdaptivePolicy())
         failures.append(contentsOf: await checkLargeWorkload())
         failures.append(contentsOf: await checkTargetScaleGrowth())
@@ -204,7 +204,7 @@ enum ReconciliationChecks {
         return failures
     }
 
-    private static func checkPopoverOpenRefresh() async -> [String] {
+    private static func checkWorkloadSurfaceOpenRefresh() async -> [String] {
         let clock = ImmediateRefreshClock()
         let client = ScriptedWorkloadClient(results: [
             .complete(snapshot(ids: ["A"]), .empty),
@@ -212,15 +212,15 @@ enum ReconciliationChecks {
         ])
         let engine = makeEngine(client: client, clock: clock)
         await engine.send(.launch)
-        await engine.send(.setPopoverOpen(true))
+        await engine.send(.setWorkloadSurfaceOpen(true))
         for _ in 0..<20 {
             if await client.requestCount >= 2 { break }
             await Task.yield()
         }
-        await engine.send(.setPopoverOpen(false))
+        await engine.send(.setWorkloadSurfaceOpen(false))
 
         var failures: [String] = []
-        check(await client.requestCount == 2, "A sustained Popover open refreshes through the same lane", failures: &failures)
+        check(await client.requestCount == 2, "A sustained Workload surface open refreshes through the same lane", failures: &failures)
         return failures
     }
 
@@ -269,13 +269,13 @@ enum ReconciliationChecks {
         for (age, expected) in cases {
             let openedAt = age.map { now.addingTimeInterval(-$0) }
             check(
-                AdaptiveRefreshPolicy.decision(now: now, lastPopoverOpenAt: openedAt).reason == expected,
+                AdaptiveRefreshPolicy.decision(now: now, lastWorkloadSurfaceOpenAt: openedAt).reason == expected,
                 "Adaptive schedule honors the \(expected.rawValue) boundary",
                 failures: &failures
             )
         }
         check(
-            AdaptiveRefreshPolicy.decision(now: now, lastPopoverOpenAt: now, isConstrained: true).reason == .constrained,
+            AdaptiveRefreshPolicy.decision(now: now, lastWorkloadSurfaceOpenAt: now, isConstrained: true).reason == .constrained,
             "Constrained state takes adaptive scheduling precedence",
             failures: &failures
         )
@@ -318,7 +318,7 @@ enum ReconciliationChecks {
             capturedAt: Date(timeIntervalSince1970: 1_700_000_000),
             completeness: completeness,
             availableRepositories: [RepositoryChoice(id: "REPO", nameWithOwner: "owner/repo")],
-            waitingForReview: [],
+            needsYourReview: [],
             authoredPullRequests: ids.enumerated().map { index, id in
                 PullRequestPresentation(
                     id: id,
@@ -434,7 +434,7 @@ private struct AccountEchoWorkloadClient: GitHubWorkloadClient {
                 capturedAt: Date(),
                 completeness: .complete,
                 availableRepositories: [],
-                waitingForReview: [],
+                needsYourReview: [],
                 authoredPullRequests: [pullRequest]
             ),
             .empty

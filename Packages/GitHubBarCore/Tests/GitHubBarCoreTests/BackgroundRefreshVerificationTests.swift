@@ -2,7 +2,7 @@ import XCTest
 @testable import GitHubBarCore
 
 final class BackgroundRefreshVerificationTests: XCTestCase {
-    func testFiveMinuteRefreshRunsWhilePopoverClosedAndPublishesNewReviewCount() async throws {
+    func testFiveMinuteRefreshRunsWhileWorkloadSurfaceClosedAndPublishesNewReviewCount() async throws {
         let clock = ManuallyAdvancingRefreshClock(
             now: Date(timeIntervalSince1970: 1_700_000_000)
         )
@@ -20,7 +20,7 @@ final class BackgroundRefreshVerificationTests: XCTestCase {
         )
 
         await engine.send(.launch)
-        await engine.send(.setPopoverOpen(false))
+        await engine.send(.setWorkloadSurfaceOpen(false))
         try await waitUntil { await clock.pendingSleepCount == 1 }
 
         await clock.advance(by: 300)
@@ -117,7 +117,7 @@ private actor ReviewCountWorkloadClient: GitHubWorkloadClient {
                 capturedAt: Date(timeIntervalSince1970: 1_700_000_000),
                 completeness: .complete,
                 availableRepositories: [],
-                waitingForReview: pullRequests,
+                needsYourReview: pullRequests,
                 authoredPullRequests: []
             ),
             .empty

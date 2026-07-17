@@ -38,7 +38,7 @@ enum SnapshotStoreChecks {
                 capturedAt: snapshot.capturedAt,
                 completeness: snapshot.completeness,
                 availableRepositories: snapshot.availableRepositories,
-                waitingForReview: snapshot.waitingForReview,
+                needsYourReview: snapshot.needsYourReview,
                 authoredPullRequests: snapshot.authoredPullRequests
             )
         )
@@ -59,7 +59,7 @@ enum SnapshotStoreChecks {
                 capturedAt: snapshot.capturedAt,
                 completeness: snapshot.completeness,
                 availableRepositories: snapshot.availableRepositories,
-                waitingForReview: snapshot.waitingForReview,
+                needsYourReview: snapshot.needsYourReview,
                 authoredPullRequests: snapshot.authoredPullRequests
             )
         )
@@ -104,7 +104,7 @@ enum SnapshotStoreChecks {
             capturedAt: Date(timeIntervalSince1970: 1_700_000_000),
             completeness: .complete,
             availableRepositories: [RepositoryChoice(id: "REPO", nameWithOwner: "owner/repo")],
-            waitingForReview: [],
+            needsYourReview: [],
             authoredPullRequests: [
                 PullRequestPresentation(
                     id: "SNAPSHOT-PR",

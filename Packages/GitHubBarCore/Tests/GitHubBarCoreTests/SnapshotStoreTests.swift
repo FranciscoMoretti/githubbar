@@ -77,7 +77,7 @@ final class SnapshotStoreTests: XCTestCase {
             capturedAt: Date(timeIntervalSince1970: 1_700_000_000),
             completeness: .complete,
             availableRepositories: [],
-            waitingForReview: [],
+            needsYourReview: [],
             authoredPullRequests: []
         )
     }

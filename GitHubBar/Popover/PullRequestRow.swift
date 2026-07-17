@@ -74,7 +74,7 @@ struct PullRequestRow: View {
     }
 }
 
-private struct ReviewerRosterView: View {
+struct ReviewerRosterView: View {
     let reviewers: [ReviewerPresentation]
 
     var body: some View {

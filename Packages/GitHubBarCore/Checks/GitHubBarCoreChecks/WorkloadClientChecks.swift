@@ -19,10 +19,24 @@ enum WorkloadClientChecks {
             return ["FAILED: Complete direct/team/authored workload reconciliation"]
         }
 
-        check(snapshot.waitingForReview.map(\.id) == ["PR-1", "PR-2"], "Direct and team review requests deduplicate", failures: &failures)
+        check(snapshot.needsYourReview.map(\.id) == ["PR-1", "PR-2"], "Direct and team review requests deduplicate", failures: &failures)
         check(snapshot.authoredPullRequests.map(\.id) == ["PR-3"], "Authored pull requests are separate", failures: &failures)
-        check(snapshot.authoredPullRequests.first?.isDraft == true, "Drafts remain in My PRs", failures: &failures)
-        check(snapshot.waitingForReview.first?.reviewers.count == 4, "Review roster combines requests, submitted reviews, and later pages", failures: &failures)
+        check(
+            snapshot.authoredPullRequests.first?.isDraft == true,
+            "Drafts remain in the Authored pull-request workload",
+            failures: &failures
+        )
+        check(
+            snapshot.authoredPullRequests.first?.reviewDecision == .reviewRequired,
+            "Aggregate Review decision hydrates",
+            failures: &failures
+        )
+        check(
+            snapshot.authoredPullRequests.first?.requestedReviewers?.map(\.displayName) == ["alice", "dave"],
+            "Outstanding Review requests remain separate from the full Reviewer roster",
+            failures: &failures
+        )
+        check(snapshot.needsYourReview.first?.reviewers.count == 4, "Review roster combines requests, submitted reviews, and later pages", failures: &failures)
         check(snapshot.availableRepositories.map(\.id) == ["REPO-1", "REPO-2"], "Accessible Repository catalog is independent of active PRs", failures: &failures)
         let accountWideQueries = await transport.searchQueries()
         check(
@@ -36,7 +50,7 @@ enum WorkloadClientChecks {
         ).reconcile(account: account)
         if case let .complete(largeRosterSnapshot, _) = largeRosterResult {
             check(
-                largeRosterSnapshot.waitingForReview.first?.reviewers.count == 101,
+                largeRosterSnapshot.needsYourReview.first?.reviewers.count == 101,
                 "Review rosters paginate beyond 100 entries without truncation",
                 failures: &failures
             )
@@ -329,10 +343,15 @@ private actor WorkloadFixtureTransport: GitHubTransport {
             if usesLargeRoster {
                 response = Self.largeRosterHydrationResponse
             } else {
-                response = Self.hydrationResponse.replacingOccurrences(
-                    of: #""hasNextPage":false,"endCursor":null"#,
-                    with: #""hasNextPage":true,"endCursor":"next""#
-                )
+                response = Self.hydrationResponse
+                    .replacingOccurrences(
+                        of: #""isDraft":true,"state":"OPEN""#,
+                        with: #""isDraft":true,"reviewDecision":"REVIEW_REQUIRED","state":"OPEN""#
+                    )
+                    .replacingOccurrences(
+                        of: #""hasNextPage":false,"endCursor":null"#,
+                        with: #""hasNextPage":true,"endCursor":"next""#
+                    )
             }
         case "PullRequestRosterPage":
             response = #"{"data":{"node":{"reviewRequests":{"nodes":[{"requestedReviewer":{"__typename":"User","login":"dave","avatarUrl":null}}],"pageInfo":{"hasNextPage":false,"endCursor":null}},"reviews":{"nodes":[],"pageInfo":{"hasNextPage":false,"endCursor":null}}},"rateLimit":{"cost":1,"remaining":4995,"resetAt":"2026-07-15T20:00:00Z"}}}"#

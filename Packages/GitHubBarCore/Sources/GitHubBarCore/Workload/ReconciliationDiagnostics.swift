@@ -4,7 +4,7 @@ import OSLog
 public enum ReconciliationTrigger: String, Sendable {
     case launch
     case manual
-    case popoverOpen
+    case workloadSurfaceOpen
     case scheduled
     case accountChanged
     case rateLimitRetry

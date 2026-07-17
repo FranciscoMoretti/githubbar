@@ -1,6 +1,5 @@
 import AppKit
 import GitHubBarCore
-import SwiftUI
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -46,14 +45,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.start()
         model.send(.launch)
 
-        if ProcessInfo.processInfo.environment["GITHUBBAR_OPEN_POPOVER"] == "1" {
+        if ProcessInfo.processInfo.environment["GITHUBBAR_OPEN_MENU"] == "1" {
             DispatchQueue.main.async {
-                statusItemController.showPopover()
+                statusItemController.showMenu()
             }
         }
 
         if ProcessInfo.processInfo.environment["GITHUBBAR_VISUAL_VALIDATION"] == "1" {
-            showVisualValidationWindow(appModel: model, actions: actions)
+            showVisualValidationWindow(
+                statusItemController: statusItemController
+            )
         }
         if ProcessInfo.processInfo.environment["GITHUBBAR_OPEN_SETTINGS"] == "1" {
             DispatchQueue.main.async {
@@ -66,15 +67,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         appModel?.stop()
     }
 
-    private func showVisualValidationWindow(appModel: AppModel, actions: AppActions) {
-        let height = PopoverView.resolvedHeight(
-            forVisibleScreenHeight: NSScreen.main?.visibleFrame.height
-        )
+    private func showVisualValidationWindow(statusItemController: StatusItemController) {
+        let height: CGFloat = 640
         let window = NSWindow(
             contentRect: NSRect(
                 x: 0,
                 y: 0,
-                width: PopoverView.preferredWidth,
+                width: 390,
                 height: height
             ),
             styleMask: [.titled, .closable],
@@ -82,10 +81,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             defer: false
         )
         window.title = "GitHubBar Visual Validation"
-        window.contentView = NSHostingView(rootView: PopoverView(appModel: appModel, actions: actions))
+        let background = NSView()
+        background.wantsLayer = true
+        background.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
+        let openMenuButton = NSButton(title: "Open GitHubBar menu", target: self, action: #selector(openMenuValidation))
+        openMenuButton.frame = NSRect(x: 110, y: height / 2 - 16, width: 170, height: 32)
+        background.addSubview(openMenuButton)
+        window.contentView = background
         window.center()
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         visualValidationWindow = window
+    }
+
+    @objc private func openMenuValidation() {
+        statusItemController?.showMenu()
     }
 }

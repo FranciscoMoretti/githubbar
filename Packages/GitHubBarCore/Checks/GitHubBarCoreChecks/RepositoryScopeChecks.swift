@@ -49,7 +49,7 @@ enum RepositoryScopeChecks {
                 RepositoryChoice(id: "REPO-1", nameWithOwner: "owner/one"),
                 RepositoryChoice(id: "REPO-2", nameWithOwner: "owner/two"),
             ],
-            waitingForReview: [pullRequest(id: "REVIEW-1", repositoryID: "REPO-1")],
+            needsYourReview: [pullRequest(id: "REVIEW-1", repositoryID: "REPO-1")],
             authoredPullRequests: [
                 pullRequest(id: "AUTHORED-1", repositoryID: "REPO-1"),
                 pullRequest(id: "AUTHORED-2", repositoryID: "REPO-2"),
@@ -182,7 +182,7 @@ private actor RacingWorkloadClient: GitHubWorkloadClient {
                 RepositoryChoice(id: "REPO-1", nameWithOwner: "alaro-ai/alaro"),
                 RepositoryChoice(id: "REPO-2", nameWithOwner: "alaro-ai/other"),
             ],
-            waitingForReview: [],
+            needsYourReview: [],
             authoredPullRequests: [
                 PullRequestPresentation(
                     id: "IN-SCOPE",

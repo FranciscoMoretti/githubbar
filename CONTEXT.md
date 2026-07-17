@@ -29,23 +29,55 @@ An open pull request on which the monitored account or one of its teams currentl
 _Avoid_: Notification, incoming PR, unread PR
 
 **Authored pull request**:
-An open pull request authored by the monitored account. Ready and draft pull requests share the My PRs list.
+An open pull request authored by the monitored account. Its Draft state, aggregate Review decision, and Outstanding review requests determine its Authored workflow section.
 _Avoid_: Outgoing PR
 
-**Waiting for my review**:
+**Needs your review**:
 The list of open, non-draft pull requests with a current direct or team review request for the monitored account.
-_Avoid_: Review inbox, unread reviews
+_Avoid_: Waiting for my review, review inbox, unread reviews
 
 **My PRs**:
-The list of all open authored pull requests, ordered by recent activity. Draft status is shown on the pull request itself rather than creating another list.
+The collective Authored pull requests visible across Returned to you, Needs reviewers, Waiting for reviewers, Approved, and Drafts.
 _Avoid_: Ready PRs, submitted PRs
 
 **Draft pull request**:
-An authored pull request whose current GitHub state is draft. It remains a normal member of My PRs with a draft status marker.
-_Avoid_: Drafts list, work in progress
+An Authored pull request whose current GitHub state is draft. Drafts take precedence over Review decision when assigning the Authored workflow section.
+_Avoid_: Work in progress
+
+**Review decision**:
+GitHub's aggregate review status for an Authored pull request: approved, changes requested, review required, or absent.
+_Avoid_: Review status, reviewer state
+
+**Outstanding review request**:
+A current request for a person or team to review an Authored pull request. It is distinct from the Review roster because completed reviewers remain visible in the roster.
+_Avoid_: Reviewer, review participant
+
+**Authored workflow section**:
+The single actionable section assigned to an Authored pull request when its Draft state, Review decision, and Outstanding review requests are known.
+_Avoid_: Lifecycle status, PR bucket
+
+**Returned to you**:
+The Authored workflow section for non-draft pull requests whose Review decision is changes requested.
+_Avoid_: Changes requested
+
+**Needs reviewers**:
+The Authored workflow section for non-draft pull requests that are neither approved nor returned and have no Outstanding review requests.
+_Avoid_: No reviewers, unassigned
+
+**Waiting for reviewers**:
+The Authored workflow section for non-draft pull requests that are neither approved nor returned and have one or more Outstanding review requests.
+_Avoid_: Pending review
+
+**Approved**:
+The Authored workflow section for non-draft pull requests whose Review decision is approved.
+_Avoid_: Ready to merge, mergeable
+
+**Drafts**:
+The Authored workflow section containing Draft pull requests.
+_Avoid_: Work in progress
 
 **Review roster**:
-The people and teams requested to review a pull request, plus people who have already submitted a review. An empty roster stays empty rather than becoming a separate warning or workflow state.
+The people and teams requested to review a pull request, plus people who have already submitted a review. It exists for visibility and does not itself determine the Authored workflow section.
 _Avoid_: Reviewer list, assignees, participants
 
 **Repository scope**:
@@ -53,7 +85,7 @@ The device-local set of accessible repositories projected from the Account workl
 _Avoid_: Mute list, notification filter
 
 **Review count**:
-The number of pull requests in Waiting for my review under the current Repository scope. It is GitHubBar's only proactive attention signal in the MVP.
+The number of pull requests in Needs your review under the current Repository scope. It is GitHubBar's only proactive attention signal in the MVP.
 _Avoid_: Unread count, notification count
 
 **Account workload**:
@@ -61,7 +93,7 @@ All open Review requests and Authored pull requests visible through the Monitore
 _Avoid_: Global scope, unfiltered feed
 
 **Active workload**:
-The visible Waiting for my review and My PRs lists projected from the Account workload under the current Repository scope.
+The visible Needs your review and Authored workflow sections projected from the Account workload under the current Repository scope.
 _Avoid_: Inbox, feed, history
 
 **Reconciliation**:

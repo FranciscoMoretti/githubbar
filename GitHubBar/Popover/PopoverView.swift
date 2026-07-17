@@ -43,7 +43,7 @@ struct PopoverView: View {
                         if !isInitialLoading {
                             WorkloadSection(
                                 title: "Waiting for my review",
-                                pullRequests: appModel.state.waitingForReview,
+                                pullRequests: appModel.state.needsYourReview,
                                 emptyMessage: "Nothing is waiting for your review.",
                                 showsRepository: showsRepositoryInRows
                             )

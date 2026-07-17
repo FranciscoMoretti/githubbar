@@ -3,7 +3,7 @@ import Foundation
 public enum WorkloadCommand: Equatable, Sendable {
     case launch
     case manualRefresh
-    case setPopoverOpen(Bool)
+    case setWorkloadSurfaceOpen(Bool)
     case confirmAccount(String)
     case requestAccountSelection
     case recheckAccountConnection

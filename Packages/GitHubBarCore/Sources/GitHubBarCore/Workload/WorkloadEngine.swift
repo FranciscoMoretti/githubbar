@@ -21,13 +21,13 @@ public actor WorkloadEngine {
 
     private var refreshTimerTask: Task<Void, Never>?
     private var scheduledRefreshAt: Date?
-    private var popoverRefreshTask: Task<Void, Never>?
+    private var workloadSurfaceRefreshTask: Task<Void, Never>?
     private var rateLimitRetryTask: Task<Void, Never>?
     private var rateLimitAttempt = 0
-    private var isPopoverOpen = false
-    private var lastPopoverOpenAt: Date?
+    private var isWorkloadSurfaceOpen = false
+    private var lastWorkloadSurfaceOpenAt: Date?
 
-    private static let popoverOpenDebounce = Duration.milliseconds(1_200)
+    private static let workloadSurfaceOpenDebounce = Duration.milliseconds(1_200)
     private static let maximumRateLimitAttempts = 3
 
     public init(
@@ -52,7 +52,7 @@ public actor WorkloadEngine {
 
     deinit {
         refreshTimerTask?.cancel()
-        popoverRefreshTask?.cancel()
+        workloadSurfaceRefreshTask?.cancel()
         rateLimitRetryTask?.cancel()
     }
 
@@ -141,8 +141,8 @@ public actor WorkloadEngine {
             rateLimitRetryTask = nil
             rateLimitAttempt = 0
             await requestReconciliation(trigger: .manual)
-        case let .setPopoverOpen(isOpen):
-            await setPopoverOpen(isOpen)
+        case let .setWorkloadSurfaceOpen(isOpen):
+            await setWorkloadSurfaceOpen(isOpen)
         }
     }
 
@@ -240,7 +240,7 @@ public actor WorkloadEngine {
                 completeness: .complete,
                 failure: nil,
                 queryCost: metadata.queryCost,
-                waitingCount: snapshot.waitingForReview.count,
+                waitingCount: snapshot.needsYourReview.count,
                 authoredCount: snapshot.authoredPullRequests.count
             )
         case let .partial(snapshot, metadata):
@@ -264,7 +264,7 @@ public actor WorkloadEngine {
                 completeness: .partial,
                 failure: nil,
                 queryCost: metadata.queryCost,
-                waitingCount: merged.waitingForReview.count,
+                waitingCount: merged.needsYourReview.count,
                 authoredCount: merged.authoredPullRequests.count
             )
         case let .failed(failure, metadata):
@@ -294,7 +294,7 @@ public actor WorkloadEngine {
                 completeness: nil,
                 failure: failure,
                 queryCost: metadata.queryCost,
-                waitingCount: state.waitingForReview.count,
+                waitingCount: state.needsYourReview.count,
                 authoredCount: state.authoredPullRequests.count
             )
         }
@@ -303,32 +303,32 @@ public actor WorkloadEngine {
         await diagnostics.record(diagnostic)
     }
 
-    private func setPopoverOpen(_ isOpen: Bool) async {
-        isPopoverOpen = isOpen
-        popoverRefreshTask?.cancel()
-        popoverRefreshTask = nil
+    private func setWorkloadSurfaceOpen(_ isOpen: Bool) async {
+        isWorkloadSurfaceOpen = isOpen
+        workloadSurfaceRefreshTask?.cancel()
+        workloadSurfaceRefreshTask = nil
         guard isOpen else { return }
 
         let now = await clock.now()
-        lastPopoverOpenAt = now
+        lastWorkloadSurfaceOpenAt = now
         await advanceAdaptiveTimerIfNeeded(now: now)
         let expectedGeneration = generation
         let clock = self.clock
-        popoverRefreshTask = Task { [weak self] in
+        workloadSurfaceRefreshTask = Task { [weak self] in
             do {
-                try await clock.sleep(for: Self.popoverOpenDebounce)
+                try await clock.sleep(for: Self.workloadSurfaceOpenDebounce)
             } catch {
                 return
             }
             guard !Task.isCancelled else { return }
-            await self?.popoverDebounceElapsed(expectedGeneration: expectedGeneration)
+            await self?.workloadSurfaceDebounceElapsed(expectedGeneration: expectedGeneration)
         }
     }
 
-    private func popoverDebounceElapsed(expectedGeneration: Int) async {
-        popoverRefreshTask = nil
-        guard isPopoverOpen, generation == expectedGeneration else { return }
-        await requestReconciliation(trigger: .popoverOpen)
+    private func workloadSurfaceDebounceElapsed(expectedGeneration: Int) async {
+        workloadSurfaceRefreshTask = nil
+        guard isWorkloadSurfaceOpen, generation == expectedGeneration else { return }
+        await requestReconciliation(trigger: .workloadSurfaceOpen)
     }
 
     private func restartRefreshTimer() async {
@@ -345,7 +345,7 @@ public actor WorkloadEngine {
 
     private func refreshDelay(for cadence: RefreshCadence, now: Date) -> Duration {
         if cadence == .adaptive {
-            return AdaptiveRefreshPolicy.decision(now: now, lastPopoverOpenAt: lastPopoverOpenAt).delay
+            return AdaptiveRefreshPolicy.decision(now: now, lastWorkloadSurfaceOpenAt: lastWorkloadSurfaceOpenAt).delay
         }
         return .seconds(max(1, cadence.rawValue))
     }
@@ -393,7 +393,7 @@ public actor WorkloadEngine {
     private func advanceAdaptiveTimerIfNeeded(now: Date) async {
         guard await currentSettings().refreshCadence == .adaptive else { return }
         let candidate = now.addingTimeInterval(
-            AdaptiveRefreshPolicy.decision(now: now, lastPopoverOpenAt: lastPopoverOpenAt).delay.timeInterval
+            AdaptiveRefreshPolicy.decision(now: now, lastWorkloadSurfaceOpenAt: lastWorkloadSurfaceOpenAt).delay.timeInterval
         )
         if let scheduledRefreshAt, scheduledRefreshAt <= candidate { return }
         scheduleRefreshTimer(at: candidate)
@@ -437,7 +437,7 @@ public actor WorkloadEngine {
     private func applyPresentation(from snapshot: WorkloadSnapshot) {
         let scope = state.repositoryScope
         state.availableRepositories = snapshot.availableRepositories
-        state.waitingForReview = snapshot.waitingForReview.filter { pullRequest in
+        state.needsYourReview = snapshot.needsYourReview.filter { pullRequest in
             scope.includes(repositoryID: pullRequest.repositoryID)
         }
         state.authoredPullRequests = snapshot.authoredPullRequests.filter { pullRequest in
@@ -470,7 +470,7 @@ public actor WorkloadEngine {
         resolvedAccount = nil
         currentSnapshot = nil
         state.availableRepositories = []
-        state.waitingForReview = []
+        state.needsYourReview = []
         state.authoredPullRequests = []
         state.lastUpdatedAt = nil
         state.refreshHealth = .idle

@@ -8,7 +8,9 @@ public struct PullRequestPresentation: Codable, Equatable, Identifiable, Sendabl
     public let title: String
     public let url: URL
     public let isDraft: Bool
+    public let reviewDecision: PullRequestReviewDecision?
     public let updatedAt: Date
+    public let requestedReviewers: [ReviewerPresentation]?
     public let reviewers: [ReviewerPresentation]
 
     public init(
@@ -19,7 +21,9 @@ public struct PullRequestPresentation: Codable, Equatable, Identifiable, Sendabl
         title: String,
         url: URL,
         isDraft: Bool,
+        reviewDecision: PullRequestReviewDecision? = nil,
         updatedAt: Date,
+        requestedReviewers: [ReviewerPresentation]? = [],
         reviewers: [ReviewerPresentation]
     ) {
         self.id = id
@@ -29,9 +33,61 @@ public struct PullRequestPresentation: Codable, Equatable, Identifiable, Sendabl
         self.title = title
         self.url = url
         self.isDraft = isDraft
+        self.reviewDecision = reviewDecision
         self.updatedAt = updatedAt
+        self.requestedReviewers = requestedReviewers
         self.reviewers = reviewers
     }
+
+    public var authoredSection: AuthoredPullRequestSection? {
+        if isDraft { return .drafts }
+        switch reviewDecision {
+        case .changesRequested:
+            return .returnedToYou
+        case .approved:
+            return .approved
+        case .reviewRequired, nil:
+            guard let requestedReviewers else { return nil }
+            return requestedReviewers.isEmpty ? .needsReviewers : .waitingForReviewers
+        }
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, repositoryID, repositoryNameWithOwner, number, title, url, isDraft
+        case reviewDecision, updatedAt, requestedReviewers, reviewers
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        repositoryID = try container.decode(String.self, forKey: .repositoryID)
+        repositoryNameWithOwner = try container.decode(String.self, forKey: .repositoryNameWithOwner)
+        number = try container.decode(Int.self, forKey: .number)
+        title = try container.decode(String.self, forKey: .title)
+        url = try container.decode(URL.self, forKey: .url)
+        isDraft = try container.decode(Bool.self, forKey: .isDraft)
+        reviewDecision = try container.decodeIfPresent(PullRequestReviewDecision.self, forKey: .reviewDecision)
+        updatedAt = try container.decode(Date.self, forKey: .updatedAt)
+        reviewers = try container.decode([ReviewerPresentation].self, forKey: .reviewers)
+        requestedReviewers = try container.decodeIfPresent(
+            [ReviewerPresentation].self,
+            forKey: .requestedReviewers
+        )
+    }
+}
+
+public enum PullRequestReviewDecision: String, Codable, Equatable, Sendable {
+    case approved = "APPROVED"
+    case changesRequested = "CHANGES_REQUESTED"
+    case reviewRequired = "REVIEW_REQUIRED"
+}
+
+public enum AuthoredPullRequestSection: String, Codable, CaseIterable, Equatable, Sendable {
+    case returnedToYou
+    case needsReviewers
+    case waitingForReviewers
+    case approved
+    case drafts
 }
 
 public struct ReviewerPresentation: Codable, Equatable, Identifiable, Sendable {

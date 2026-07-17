@@ -36,17 +36,17 @@ public struct AdaptiveRefreshDecision: Equatable, Sendable {
 public enum AdaptiveRefreshPolicy {
     public static func decision(
         now: Date,
-        lastPopoverOpenAt: Date?,
+        lastWorkloadSurfaceOpenAt: Date?,
         isConstrained: Bool = false
     ) -> AdaptiveRefreshDecision {
         if isConstrained {
             return AdaptiveRefreshDecision(delay: .minutes(30), reason: .constrained)
         }
-        guard let lastPopoverOpenAt else {
+        guard let lastWorkloadSurfaceOpenAt else {
             return AdaptiveRefreshDecision(delay: .minutes(30), reason: .longIdle)
         }
 
-        let age = max(0, now.timeIntervalSince(lastPopoverOpenAt))
+        let age = max(0, now.timeIntervalSince(lastWorkloadSurfaceOpenAt))
         if age <= 5 * 60 {
             return AdaptiveRefreshDecision(delay: .minutes(2), reason: .recentInteraction)
         }

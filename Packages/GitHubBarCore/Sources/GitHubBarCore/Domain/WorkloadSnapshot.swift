@@ -14,8 +14,14 @@ public struct WorkloadSnapshot: Codable, Equatable, Sendable {
     public let capturedAt: Date
     public let completeness: Completeness
     public let availableRepositories: [RepositoryChoice]
-    public let waitingForReview: [PullRequestPresentation]
+    public let needsYourReview: [PullRequestPresentation]
     public let authoredPullRequests: [PullRequestPresentation]
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaVersion, hostname, accountLogin, capturedAt, completeness, availableRepositories
+        case needsYourReview = "waitingForReview"
+        case authoredPullRequests
+    }
 
     public init(
         schemaVersion: Int = WorkloadSnapshot.currentSchemaVersion,
@@ -24,7 +30,7 @@ public struct WorkloadSnapshot: Codable, Equatable, Sendable {
         capturedAt: Date,
         completeness: Completeness,
         availableRepositories: [RepositoryChoice],
-        waitingForReview: [PullRequestPresentation],
+        needsYourReview: [PullRequestPresentation],
         authoredPullRequests: [PullRequestPresentation]
     ) {
         self.schemaVersion = schemaVersion
@@ -33,7 +39,7 @@ public struct WorkloadSnapshot: Codable, Equatable, Sendable {
         self.capturedAt = capturedAt
         self.completeness = completeness
         self.availableRepositories = availableRepositories
-        self.waitingForReview = waitingForReview
+        self.needsYourReview = needsYourReview
         self.authoredPullRequests = authoredPullRequests
     }
 }
@@ -46,10 +52,10 @@ public extension WorkloadSnapshot {
             return self
         }
 
-        let confirmedIDs = Set(waitingForReview.map(\.id) + authoredPullRequests.map(\.id))
+        let confirmedIDs = Set(needsYourReview.map(\.id) + authoredPullRequests.map(\.id))
         let mergedWaiting = Self.merge(
-            confirmed: waitingForReview,
-            retained: previous.waitingForReview.filter { !confirmedIDs.contains($0.id) },
+            confirmed: needsYourReview,
+            retained: previous.needsYourReview.filter { !confirmedIDs.contains($0.id) },
             mostRecentFirst: false
         )
         let mergedAuthored = Self.merge(
@@ -69,7 +75,7 @@ public extension WorkloadSnapshot {
             capturedAt: capturedAt,
             completeness: .partial,
             availableRepositories: repositoryByID.values.sorted { $0.nameWithOwner.localizedCaseInsensitiveCompare($1.nameWithOwner) == .orderedAscending },
-            waitingForReview: mergedWaiting,
+            needsYourReview: mergedWaiting,
             authoredPullRequests: mergedAuthored
         )
     }

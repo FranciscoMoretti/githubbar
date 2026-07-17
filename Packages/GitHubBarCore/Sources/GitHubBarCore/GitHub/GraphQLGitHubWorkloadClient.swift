@@ -94,7 +94,7 @@ public struct GraphQLGitHubWorkloadClient: GitHubWorkloadClient {
         )
 
         let recordsByID = Dictionary(uniqueKeysWithValues: hydratedRecords.map { ($0.id, $0) })
-        let waitingForReview = reviewDiscoveryIDs.compactMap { id -> PullRequestPresentation? in
+        let needsYourReview = reviewDiscoveryIDs.compactMap { id -> PullRequestPresentation? in
             guard let record = recordsByID[id],
                   !record.isDraft,
                   !record.requestedReviewerKeys.isDisjoint(with: monitoredReviewerKeys) else {
@@ -126,7 +126,7 @@ public struct GraphQLGitHubWorkloadClient: GitHubWorkloadClient {
             capturedAt: Date(),
             completeness: completeness,
             availableRepositories: repositoryCatalog,
-            waitingForReview: waitingForReview,
+            needsYourReview: needsYourReview,
             authoredPullRequests: authoredPullRequests
         )
 
@@ -506,6 +506,7 @@ private extension GraphQLGitHubWorkloadClient {
           title
           url
           isDraft
+          reviewDecision
           state
           updatedAt
           author { login }
@@ -796,6 +797,7 @@ private struct PullRequestDTO: Decodable, Sendable {
     let title: String
     let url: String
     let isDraft: Bool
+    let reviewDecision: String?
     let state: String
     let updatedAt: String
     let author: ActorDTO?
@@ -880,6 +882,7 @@ private struct HydratedRecord: Sendable {
     let repositoryNameWithOwner: String
     let authorLogin: String
     let isDraft: Bool
+    let reviewDecision: PullRequestReviewDecision?
     let number: Int
     let title: String
     let url: URL
@@ -902,6 +905,7 @@ private struct HydratedRecord: Sendable {
         repositoryNameWithOwner = dto.repository.nameWithOwner
         authorLogin = author.login
         isDraft = dto.isDraft
+        reviewDecision = dto.reviewDecision.flatMap(PullRequestReviewDecision.init(rawValue:))
         number = dto.number
         title = dto.title
         self.url = url
@@ -917,9 +921,10 @@ private struct HydratedRecord: Sendable {
     }
 
     var presentation: PullRequestPresentation {
+        let requestedReviewerPresentations = requestedReviewers.compactMap(\.presentation)
         var reviewersByID: [String: ReviewerPresentation] = [:]
         var reviewerOrder: [String] = []
-        for reviewer in requestedReviewers.compactMap(\.presentation) {
+        for reviewer in requestedReviewerPresentations {
             if reviewersByID[reviewer.id] == nil { reviewerOrder.append(reviewer.id) }
             reviewersByID[reviewer.id] = reviewer
         }
@@ -936,7 +941,9 @@ private struct HydratedRecord: Sendable {
             title: title,
             url: url,
             isDraft: isDraft,
+            reviewDecision: reviewDecision,
             updatedAt: updatedAt,
+            requestedReviewers: requestedReviewerPresentations,
             reviewers: reviewerOrder.compactMap { reviewersByID[$0] }
         )
     }

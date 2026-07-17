@@ -35,6 +35,7 @@ enum GitHubBarCoreChecks {
         )
 
         await checkAccountSelection(failures: &failures)
+        failures.append(contentsOf: PullRequestSectionChecks.run())
         failures.append(contentsOf: await WorkloadClientChecks.run())
         failures.append(contentsOf: await SnapshotStoreChecks.run())
         failures.append(contentsOf: await RepositoryScopeChecks.run())

@@ -16,7 +16,7 @@ final class WorkloadEngineTests: XCTestCase {
         let state = try XCTUnwrap(await iterator.next())
 
         XCTAssertEqual(state, .empty)
-        XCTAssertTrue(state.waitingForReview.isEmpty)
+        XCTAssertTrue(state.needsYourReview.isEmpty)
         XCTAssertTrue(state.authoredPullRequests.isEmpty)
         XCTAssertEqual(state.reviewCount, 0)
         XCTAssertEqual(state.reviewCountAccessibilityLabel, "No pull requests waiting for your review")
@@ -49,21 +49,21 @@ final class WorkloadEngineTests: XCTestCase {
 
         await engine.send(.selectRepositoryScope(.selected(["REPO-A"])))
         var state = try await currentState(of: engine)
-        XCTAssertEqual(state.waitingForReview.map(\.repositoryID), ["REPO-A"])
+        XCTAssertEqual(state.needsYourReview.map(\.repositoryID), ["REPO-A"])
         XCTAssertEqual(state.reviewCount, 1)
         XCTAssertFalse(state.isRefreshing)
         XCTAssertEqual(await workloadClient.requestCount, 1)
 
         await engine.send(.selectRepositoryScope(.selected(["REPO-B"])))
         state = try await currentState(of: engine)
-        XCTAssertEqual(state.waitingForReview.map(\.repositoryID), ["REPO-B"])
+        XCTAssertEqual(state.needsYourReview.map(\.repositoryID), ["REPO-B"])
         XCTAssertEqual(state.reviewCount, 1)
         XCTAssertFalse(state.isRefreshing)
         XCTAssertEqual(await workloadClient.requestCount, 1)
 
         await engine.send(.selectRepositoryScope(.all))
         state = try await currentState(of: engine)
-        XCTAssertEqual(state.waitingForReview.map(\.repositoryID), ["REPO-A", "REPO-B"])
+        XCTAssertEqual(state.needsYourReview.map(\.repositoryID), ["REPO-A", "REPO-B"])
         XCTAssertEqual(state.reviewCount, 2)
         XCTAssertFalse(state.isRefreshing)
         XCTAssertEqual(await workloadClient.requestCount, 1)
@@ -153,7 +153,7 @@ private actor ScopeFilteringWorkloadClient: GitHubWorkloadClient {
                     RepositoryChoice(id: "REPO-A", nameWithOwner: "owner/a"),
                     RepositoryChoice(id: "REPO-B", nameWithOwner: "owner/b"),
                 ],
-                waitingForReview: [
+                needsYourReview: [
                     pullRequest(id: "PR-A", repositoryID: "REPO-A", number: 1),
                     pullRequest(id: "PR-B", repositoryID: "REPO-B", number: 2),
                 ],

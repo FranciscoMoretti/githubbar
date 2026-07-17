@@ -5,7 +5,7 @@ public struct AppPresentationState: Codable, Equatable, Sendable {
     public var refreshHealth: RefreshHealthPresentation
     public var repositoryScope: RepositoryScope
     public var availableRepositories: [RepositoryChoice]
-    public var waitingForReview: [PullRequestPresentation]
+    public var needsYourReview: [PullRequestPresentation]
     public var authoredPullRequests: [PullRequestPresentation]
     public var lastUpdatedAt: Date?
     public var isRefreshing: Bool
@@ -13,12 +13,19 @@ public struct AppPresentationState: Codable, Equatable, Sendable {
     public var launchAtLoginRequested: Bool
     public var launchAtLoginStatus: LaunchAtLoginStatus
 
+    private enum CodingKeys: String, CodingKey {
+        case accountConnection, refreshHealth, repositoryScope, availableRepositories
+        case needsYourReview = "waitingForReview"
+        case authoredPullRequests, lastUpdatedAt, isRefreshing, refreshCadence
+        case launchAtLoginRequested, launchAtLoginStatus
+    }
+
     public init(
         accountConnection: AccountConnectionPresentation,
         refreshHealth: RefreshHealthPresentation,
         repositoryScope: RepositoryScope,
         availableRepositories: [RepositoryChoice],
-        waitingForReview: [PullRequestPresentation],
+        needsYourReview: [PullRequestPresentation],
         authoredPullRequests: [PullRequestPresentation],
         lastUpdatedAt: Date?,
         isRefreshing: Bool,
@@ -30,7 +37,7 @@ public struct AppPresentationState: Codable, Equatable, Sendable {
         self.refreshHealth = refreshHealth
         self.repositoryScope = repositoryScope
         self.availableRepositories = availableRepositories
-        self.waitingForReview = waitingForReview
+        self.needsYourReview = needsYourReview
         self.authoredPullRequests = authoredPullRequests
         self.lastUpdatedAt = lastUpdatedAt
         self.isRefreshing = isRefreshing
@@ -44,7 +51,7 @@ public struct AppPresentationState: Codable, Equatable, Sendable {
         refreshHealth: .idle,
         repositoryScope: .all,
         availableRepositories: [],
-        waitingForReview: [],
+        needsYourReview: [],
         authoredPullRequests: [],
         lastUpdatedAt: nil,
         isRefreshing: false,
@@ -54,7 +61,7 @@ public struct AppPresentationState: Codable, Equatable, Sendable {
     )
 
     public var reviewCount: Int {
-        waitingForReview.count
+        needsYourReview.count
     }
 
     public var reviewCountAccessibilityLabel: String {
