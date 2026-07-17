@@ -49,19 +49,16 @@ extension StatusItemController: NSMenuDelegate {
         statusMenu.addItem(headerItem())
         statusMenu.addItem(repositoryScopeItem())
 
-        var addedSection = false
         addSection(
             .needsYourReview,
-            pullRequests: appModel.state.needsYourReview,
-            addedSection: &addedSection
+            pullRequests: appModel.state.needsYourReview
         )
         for authoredSection in AuthoredPullRequestSection.allCases {
             addSection(
                 .authored(authoredSection),
                 pullRequests: appModel.state.authoredPullRequests.filter {
                     $0.authoredSection == authoredSection
-                },
-                addedSection: &addedSection
+                }
             )
         }
         addSection(
@@ -69,19 +66,8 @@ extension StatusItemController: NSMenuDelegate {
             pullRequests: appModel.state.authoredPullRequests.filter {
                 $0.authoredSection == nil
             },
-            addedSection: &addedSection
+            showsWhenEmpty: false
         )
-
-        if !addedSection {
-            statusMenu.addItem(.separator())
-            let empty = NSMenuItem(
-                title: "No pull requests need attention.",
-                action: nil,
-                keyEquivalent: ""
-            )
-            empty.isEnabled = false
-            statusMenu.addItem(empty)
-        }
 
         addActions()
     }
@@ -89,11 +75,10 @@ extension StatusItemController: NSMenuDelegate {
     private func addSection(
         _ section: StatusMenuSection,
         pullRequests: [PullRequestPresentation],
-        addedSection: inout Bool
+        showsWhenEmpty: Bool = true
     ) {
-        guard !pullRequests.isEmpty else { return }
+        guard showsWhenEmpty || !pullRequests.isEmpty else { return }
         statusMenu.addItem(.separator())
-        addedSection = true
 
         let header = NSMenuItem(
             title: "\(section.title)  \(pullRequests.count)",
