@@ -61,11 +61,11 @@ The Authored workflow section for non-draft pull requests whose Review decision 
 _Avoid_: Changes requested
 
 **Needs reviewers**:
-The Authored workflow section for non-draft pull requests that are neither approved nor returned and have no Outstanding review requests.
+The Authored workflow section for non-draft pull requests with no Review decision and no Outstanding review requests.
 _Avoid_: No reviewers, unassigned
 
 **Waiting for reviewers**:
-The Authored workflow section for non-draft pull requests that are neither approved nor returned and have one or more Outstanding review requests.
+The Authored workflow section for non-draft pull requests whose Review decision is review required, or whose decision is absent but has one or more Outstanding review requests.
 _Avoid_: Pending review
 
 **Approved**:

@@ -32,8 +32,18 @@ enum PullRequestSectionChecks {
             failures: &failures
         )
         check(
-            pullRequest(decision: .reviewRequired).authoredSection == .needsReviewers,
-            "Review-required PRs without outstanding requests classify as Needs reviewers",
+            pullRequest(decision: .reviewRequired, reviewers: [reviewer]).authoredSection == .waitingForReviewers,
+            "Review-required PRs remain Waiting for reviewers after an earlier review request is completed",
+            failures: &failures
+        )
+        check(
+            pullRequest(decision: .reviewRequired).authoredSection == .waitingForReviewers,
+            "Review-required PRs without outstanding requests classify as Waiting for reviewers",
+            failures: &failures
+        )
+        check(
+            pullRequest(requestedReviewers: [reviewer]).authoredSection == .waitingForReviewers,
+            "Unprotected PRs with outstanding requests classify as Waiting for reviewers",
             failures: &failures
         )
         check(
@@ -73,7 +83,8 @@ enum PullRequestSectionChecks {
     private static func pullRequest(
         isDraft: Bool = false,
         decision: PullRequestReviewDecision? = nil,
-        requestedReviewers: [ReviewerPresentation] = []
+        requestedReviewers: [ReviewerPresentation] = [],
+        reviewers: [ReviewerPresentation]? = nil
     ) -> PullRequestPresentation {
         PullRequestPresentation(
             id: "PR-1",
@@ -86,7 +97,7 @@ enum PullRequestSectionChecks {
             reviewDecision: decision,
             updatedAt: Date(timeIntervalSince1970: 0),
             requestedReviewers: requestedReviewers,
-            reviewers: requestedReviewers
+            reviewers: reviewers ?? requestedReviewers
         )
     }
 

@@ -49,7 +49,9 @@ public struct PullRequestPresentation: Codable, Equatable, Identifiable, Sendabl
             return .returnedToYou
         case .approved:
             return .approved
-        case .reviewRequired, nil:
+        case .reviewRequired:
+            return .waitingForReviewers
+        case nil:
             guard let requestedReviewers else { return nil }
             return requestedReviewers.isEmpty ? .needsReviewers : .waitingForReviewers
         }
