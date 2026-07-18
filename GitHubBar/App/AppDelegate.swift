@@ -1,5 +1,6 @@
 import AppKit
 import GitHubBarCore
+import OSLog
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -7,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItemController: StatusItemController?
     private var settingsWindowController: SettingsWindowController?
     private var applicationMenuController: ApplicationMenuController?
+    private var globalHotKeyController: GlobalHotKeyController?
     private var visualValidationWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -41,6 +43,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.statusItemController = statusItemController
         self.settingsWindowController = settingsWindowController
         self.applicationMenuController = applicationMenuController
+
+        let shortcut = GitHubBarShortcut.openMenu
+        do {
+            globalHotKeyController = try GlobalHotKeyController(shortcut: shortcut) { [weak statusItemController] in
+                statusItemController?.toggleMenu()
+            }
+            statusItemController.setRegisteredShortcut(shortcut)
+        } catch {
+            Logger(subsystem: "com.franciscomoretti.githubbar", category: "shortcut")
+                .error("Could not register the global menu shortcut: \(String(describing: error), privacy: .public)")
+        }
 
         model.start()
         model.send(.launch)

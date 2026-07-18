@@ -14,6 +14,7 @@
 		4E861E74CE10041FA7DDD5C3 /* ApplicationMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE41C26ABE21A457E830821 /* ApplicationMenuController.swift */; };
 		54C3DE85335363A079158DDF /* AccountConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 685E6864EC15CF08046AF835 /* AccountConnectionView.swift */; };
 		5545D32255BB93E13B0DD1B9 /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B84D614FD57185277F2F77F2 /* SettingsWindowController.swift */; };
+		613BD46ADBAE74F5476ADF1B /* GlobalHotKeyController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E92E7653755A1285ACBB51A /* GlobalHotKeyController.swift */; };
 		65679A108BD941742103A172 /* MacLaunchAtLoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 413C65D56097A21D67B2DFEC /* MacLaunchAtLoginController.swift */; };
 		6C570A0F606EA7D7AE56A2A2 /* UpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C39E485BC4A03542878D61F2 /* UpdateController.swift */; };
 		92D81BE0493C6FAEDF136177 /* RepositoryScopeControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D582835D6F15750A7B876847 /* RepositoryScopeControl.swift */; };
@@ -50,6 +51,7 @@
 		3B9813F72CF2F4CB20333095 /* UpdateControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateControllerTests.swift; sourceTree = "<group>"; };
 		413C65D56097A21D67B2DFEC /* MacLaunchAtLoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacLaunchAtLoginController.swift; sourceTree = "<group>"; };
 		48506E36134F710544DC49CA /* StatusItemMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemMenu.swift; sourceTree = "<group>"; };
+		4E92E7653755A1285ACBB51A /* GlobalHotKeyController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotKeyController.swift; sourceTree = "<group>"; };
 		5CE41C26ABE21A457E830821 /* ApplicationMenuController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationMenuController.swift; sourceTree = "<group>"; };
 		685E6864EC15CF08046AF835 /* AccountConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountConnectionView.swift; sourceTree = "<group>"; };
 		6FCA7F94A99E37FDFC8C9470 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -179,6 +181,7 @@
 				6FCA7F94A99E37FDFC8C9470 /* AppDelegate.swift */,
 				5CE41C26ABE21A457E830821 /* ApplicationMenuController.swift */,
 				15A06FCA62CDE78A733A5E75 /* AppModel.swift */,
+				4E92E7653755A1285ACBB51A /* GlobalHotKeyController.swift */,
 				8A914524DE738D5B82F7761E /* Main.swift */,
 			);
 			path = App;
@@ -296,6 +299,7 @@
 				AC9E4DF525406EC58650E413 /* AppDelegate.swift in Sources */,
 				F751EBF210E1E91BB7E0B863 /* AppModel.swift in Sources */,
 				4E861E74CE10041FA7DDD5C3 /* ApplicationMenuController.swift in Sources */,
+				613BD46ADBAE74F5476ADF1B /* GlobalHotKeyController.swift in Sources */,
 				EA70C75EAE03957D64C8A89A /* IdentityAvatarImage.swift in Sources */,
 				65679A108BD941742103A172 /* MacLaunchAtLoginController.swift in Sources */,
 				17D216F8F91FE77B7AE0AD34 /* Main.swift in Sources */,

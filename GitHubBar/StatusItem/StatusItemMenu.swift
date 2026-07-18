@@ -201,6 +201,17 @@ extension StatusItemController: NSMenuDelegate {
         statusMenu.addItem(actionItem("Settings…", selector: #selector(openSettings), key: ","))
         statusMenu.addItem(actionItem("About GitHubBar", selector: #selector(openAbout)))
         statusMenu.addItem(actionItem("Quit", selector: #selector(quit), key: "q"))
+        guard let registeredShortcut else { return }
+        statusMenu.addItem(.separator())
+
+        let shortcut = NSMenuItem(
+            title: "Shortcut to open GitHubBar",
+            action: nil,
+            keyEquivalent: registeredShortcut.key.keyEquivalent
+        )
+        shortcut.keyEquivalentModifierMask = registeredShortcut.modifiers
+        shortcut.isEnabled = false
+        statusMenu.addItem(shortcut)
     }
 
     private func actionItem(_ title: String, selector: Selector, key: String = "") -> NSMenuItem {

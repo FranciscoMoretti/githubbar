@@ -9,6 +9,7 @@ final class StatusItemController: NSObject {
     let statusMenu = NSMenu()
     var isStatusMenuOpen = false
     var highlightedStatusMenuItem: NSMenuItem?
+    var registeredShortcut: GitHubBarShortcut?
 
     init(appModel: AppModel, actions: AppActions = AppActions()) {
         self.appModel = appModel
@@ -41,5 +42,18 @@ final class StatusItemController: NSObject {
 
     func showMenu() {
         statusItem.button?.performClick(nil)
+    }
+
+    func toggleMenu() {
+        if isStatusMenuOpen {
+            statusMenu.cancelTracking()
+        } else {
+            showMenu()
+        }
+    }
+
+    func setRegisteredShortcut(_ shortcut: GitHubBarShortcut) {
+        registeredShortcut = shortcut
+        rebuildStatusMenu()
     }
 }
