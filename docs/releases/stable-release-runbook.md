@@ -14,10 +14,10 @@ The maintainer—not an agent or repository—owns these credentials:
 The stable appcast URL is:
 
 ```text
-https://github.com/FranciscoMoretti/githubbar/releases/latest/download/appcast.xml
+https://github.com/FranciscoMoretti/GitHubBar/releases/latest/download/appcast.xml
 ```
 
-Only non-prerelease stable releases may be marked Latest. Their update archives use the immutable per-tag prefix `https://github.com/FranciscoMoretti/githubbar/releases/download/<tag>/`.
+Only non-prerelease stable releases may be marked Latest. Their update archives use the immutable per-tag prefix `https://github.com/FranciscoMoretti/GitHubBar/releases/download/<tag>/`.
 
 ## Local stable build
 
@@ -30,8 +30,8 @@ export GITHUBBAR_DEVELOPMENT_TEAM=YOUR_TEAM_ID
 export GITHUBBAR_SIGNING_IDENTITY='Developer ID Application: Your Name (YOUR_TEAM_ID)'
 export GITHUBBAR_NOTARY_PROFILE=GitHubBar
 export GITHUBBAR_SPARKLE_PUBLIC_KEY='PUBLIC_BASE64_KEY'
-export GITHUBBAR_SPARKLE_FEED_URL='https://github.com/FranciscoMoretti/githubbar/releases/latest/download/appcast.xml'
-export GITHUBBAR_DOWNLOAD_URL_PREFIX='https://github.com/FranciscoMoretti/githubbar/releases/download/v1.0.0/'
+export GITHUBBAR_SPARKLE_FEED_URL='https://github.com/FranciscoMoretti/GitHubBar/releases/latest/download/appcast.xml'
+export GITHUBBAR_DOWNLOAD_URL_PREFIX='https://github.com/FranciscoMoretti/GitHubBar/releases/download/v1.0.0/'
 scripts/package-stable.sh
 ```
 

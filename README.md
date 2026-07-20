@@ -2,93 +2,52 @@
 
 # GitHubBar
 
-### Your pull requests, one shortcut away.
+### Review at scale, from your menu bar.
 
-[![Latest validation build](https://img.shields.io/github/v/release/FranciscoMoretti/githubbar?include_prereleases&style=flat-square&label=validation&color=2f81f7)](https://github.com/FranciscoMoretti/githubbar/releases)
-[![macOS 14+](https://img.shields.io/badge/macOS-14%2B-0d1117?style=flat-square&logo=apple&logoColor=white)](https://github.com/FranciscoMoretti/githubbar/releases)
+[![Latest validation build](https://img.shields.io/github/v/release/FranciscoMoretti/GitHubBar?include_prereleases&style=flat-square&label=validation&color=2f81f7)](https://github.com/FranciscoMoretti/GitHubBar/releases)
+[![macOS 14+](https://img.shields.io/badge/macOS-14%2B-0d1117?style=flat-square&logo=apple&logoColor=white)](https://github.com/FranciscoMoretti/GitHubBar/releases)
 [![Swift 6](https://img.shields.io/badge/Swift-6-F05138?style=flat-square&logo=swift&logoColor=white)](https://www.swift.org/)
-[![GitHub CLI](https://img.shields.io/badge/auth-GitHub_CLI-0d1117?style=flat-square&logo=github)](https://cli.github.com/)
 
-<img src="docs/assets/githubbar-hero.png" alt="GitHubBar native macOS menu showing pull requests grouped by review state" width="100%" />
+<img src="docs/assets/githubbar-hero.png" alt="GitHubBar showing pull requests grouped by review state" width="100%" />
 
-GitHubBar is a native macOS menu-bar app that keeps the pull requests needing your attention close at hand. See your review queue, follow your own work, and open the right PR without repeatedly loading GitHub.
+**The number in your menu bar is your review queue:** open pull requests waiting for your review across the repositories you care about.
 
-[Download the latest validation build](https://github.com/FranciscoMoretti/githubbar/releases) · [Build from source](#build-from-source) · [Report an issue](https://github.com/FranciscoMoretti/githubbar/issues)
+[Download GitHubBar](https://github.com/FranciscoMoretti/GitHubBar/releases) · [Report an issue](https://github.com/FranciscoMoretti/GitHubBar/issues)
 
 </div>
 
-> [!NOTE]
-> GitHubBar is in active validation. Current builds are ad-hoc signed and not notarized; verify the provided SHA-256 checksum before installing.
+## Built for review at scale
 
-## The review loop, without the tab loop
+- See how many pull requests need your review without opening GitHub.
+- Scan authors, repositories, and review state in one native macOS menu.
+- Track your own PRs by next action: returned, needs reviewers, waiting, approved, or draft.
+- Press <kbd>⌥</kbd><kbd>⌘</kbd><kbd>G</kbd> from anywhere and open the right PR instantly.
 
-| See what needs you | Know what is moving | Stay in flow |
-| --- | --- | --- |
-| The menu-bar icon carries your review count, while **Needs your review** puts every requested review in one place. | Your PRs are grouped into **Returned to you**, **Needs reviewers**, **Waiting for reviewers**, **Approved**, and **Drafts**. | Press <kbd>⌥</kbd><kbd>⌘</kbd><kbd>G</kbd> from anywhere, filter by repository, then open a PR directly on GitHub. |
+## Install
 
-GitHubBar is deliberately small and native: no Dock icon, no embedded web app, and no extra account to manage. It uses your existing [GitHub CLI](https://cli.github.com/) connection and keeps a local snapshot so the menu is useful immediately after launch.
+1. Install and sign in to [GitHub CLI](https://cli.github.com/):
 
-## Highlights
+   ```sh
+   brew install gh
+   gh auth login
+   ```
 
-- **A real macOS menu.** Fast keyboard navigation, familiar shortcuts, native highlighting, and VoiceOver labels.
-- **Review state at a glance.** The status icon shows how many PRs are waiting for your review.
-- **Your workload, sorted.** Authored PRs are separated by the next action instead of flattened into one list.
-- **Repository scope.** Watch everything you can access or focus the menu on one repository.
-- **People in context.** Author and reviewer avatars make a busy queue easier to scan.
-- **Fresh without being noisy.** Choose a refresh cadence, refresh manually with <kbd>⌘</kbd><kbd>R</kbd>, and keep the last good snapshot through transient failures.
-- **Made to disappear.** Launch at login, open it with <kbd>⌥</kbd><kbd>⌘</kbd><kbd>G</kbd>, and get back to work.
+2. Download the ZIP and `.sha256` file from the [latest release](https://github.com/FranciscoMoretti/GitHubBar/releases), then verify it:
 
-## Install a validation build
+   ```sh
+   cd ~/Downloads
+   shasum -a 256 --check GitHubBar-*.zip.sha256
+   ```
 
-### Requirements
+3. Unzip GitHubBar, move it to **Applications**, then Control-click the app and choose **Open** the first time.
 
-- macOS 14 Sonoma or newer
-- [GitHub CLI](https://cli.github.com/) installed and authenticated with `gh auth login`
+GitHubBar requires macOS 14 or newer. Validation builds are universal, ad-hoc signed, and not yet notarized.
 
-Download the ZIP and checksum from the [latest release](https://github.com/FranciscoMoretti/githubbar/releases). Validation builds are universal (`arm64` and `x86_64`) but are not notarized, so macOS may require you to explicitly allow the first launch.
+## Privacy
 
-<details>
-<summary><strong>Install and verify from Terminal</strong></summary>
-
-```sh
-release="$(gh release list \
-  --repo FranciscoMoretti/githubbar \
-  --limit 1 \
-  --json tagName \
-  --jq '.[0].tagName')"
-download_dir="$(mktemp -d)"
-mkdir -p "$HOME/Applications"
-cd "$download_dir"
-
-gh release download "$release" \
-  --repo FranciscoMoretti/githubbar \
-  --pattern '*.zip' \
-  --pattern '*.zip.sha256'
-
-shasum -a 256 --check ./*.zip.sha256
-ditto -x -k ./*.zip .
-rm -rf "$HOME/Applications/GitHubBar.app"
-mv GitHubBar.app "$HOME/Applications/GitHubBar.app"
-xattr -dr com.apple.quarantine "$HOME/Applications/GitHubBar.app"
-open "$HOME/Applications/GitHubBar.app"
-```
-
-These commands replace an existing copy in `~/Applications`. Removing the quarantine attribute opts this verified download out of Gatekeeper assessment; only do this when the checksum succeeds and the files came from this repository.
-
-</details>
-
-On first launch, GitHubBar appears in the menu bar and connects through your authenticated GitHub CLI account.
-
-## Privacy and local data
-
-- GitHubBar asks GitHub CLI for a temporary token, uses it in process memory, and never stores it.
-- Your selected account, repository scope, refresh cadence, and app preferences stay on this Mac.
-- The active pull-request snapshot is stored in Application Support with owner-only permissions.
-- Diagnostics record refresh timing, counts, completeness, and failure categories—not tokens, headers, repository names, PR titles, or usernames.
+GitHubBar uses your existing GitHub CLI login. Tokens stay in memory, preferences and the latest PR snapshot stay on your Mac, and diagnostics never record repository names, PR titles, usernames, or credentials.
 
 ## Build from source
-
-You will need macOS 14+, Xcode with the macOS 14 SDK, [XcodeGen](https://github.com/yonaskolb/XcodeGen), and an authenticated GitHub CLI.
 
 ```sh
 brew install xcodegen gh
@@ -96,25 +55,7 @@ scripts/generate-project.sh
 open GitHubBar.xcodeproj
 ```
 
-Choose the `GitHubBar` scheme and run it. GitHubBar is an accessory app, so it appears in the menu bar rather than the Dock.
-
-Run the complete local check suite with:
-
-```sh
-scripts/check.sh
-```
-
-Package a universal, ad-hoc-signed validation artifact with:
-
-```sh
-GITHUBBAR_VERSION=0.1.0 scripts/package-validation.sh
-```
-
-Release details live in the [validation guide](docs/releases/validation-release.md). The fail-closed Developer ID, notarization, and Sparkle pipeline is documented in the [stable release runbook](docs/releases/stable-release-runbook.md).
-
-## Contributing
-
-Bug reports and focused pull requests are welcome. Start with [GitHub Issues](https://github.com/FranciscoMoretti/githubbar/issues), and include your macOS version, GitHubBar build, and the smallest reproducible description you can.
+Run `scripts/check.sh` before submitting a pull request. Release details are in the [validation guide](docs/releases/validation-release.md).
 
 ---
 

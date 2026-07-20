@@ -417,7 +417,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				GITHUBBAR_SPARKLE_FEED_URL = "https://github.com/FranciscoMoretti/githubbar/releases/latest/download/appcast.xml";
+				GITHUBBAR_SPARKLE_FEED_URL = "https://github.com/FranciscoMoretti/GitHubBar/releases/latest/download/appcast.xml";
 				GITHUBBAR_SPARKLE_PUBLIC_KEY = "";
 				INFOPLIST_FILE = GitHubBar/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -441,7 +441,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				GITHUBBAR_SPARKLE_FEED_URL = "https://github.com/FranciscoMoretti/githubbar/releases/latest/download/appcast.xml";
+				GITHUBBAR_SPARKLE_FEED_URL = "https://github.com/FranciscoMoretti/GitHubBar/releases/latest/download/appcast.xml";
 				GITHUBBAR_SPARKLE_PUBLIC_KEY = "";
 				INFOPLIST_FILE = GitHubBar/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -622,7 +622,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				GITHUBBAR_SPARKLE_FEED_URL = "https://github.com/FranciscoMoretti/githubbar/releases/latest/download/appcast.xml";
+				GITHUBBAR_SPARKLE_FEED_URL = "https://github.com/FranciscoMoretti/GitHubBar/releases/latest/download/appcast.xml";
 				GITHUBBAR_SPARKLE_PUBLIC_KEY = "";
 				INFOPLIST_FILE = GitHubBar/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

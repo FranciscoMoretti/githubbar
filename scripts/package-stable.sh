@@ -164,7 +164,7 @@ fi
 "$sparkle_bin_dir/generate_appcast" \
   --account "$sparkle_account" \
   --download-url-prefix "$GITHUBBAR_DOWNLOAD_URL_PREFIX" \
-  --link "https://github.com/FranciscoMoretti/githubbar" \
+  --link "https://github.com/FranciscoMoretti/GitHubBar" \
   --embed-release-notes \
   --maximum-versions 3 \
   "$updates_dir"

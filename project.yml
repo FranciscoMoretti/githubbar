@@ -47,7 +47,7 @@ targets:
         ENABLE_HARDENED_RUNTIME: YES
         CURRENT_PROJECT_VERSION: 1
         MARKETING_VERSION: 0.1.0
-        GITHUBBAR_SPARKLE_FEED_URL: https://github.com/FranciscoMoretti/githubbar/releases/latest/download/appcast.xml
+        GITHUBBAR_SPARKLE_FEED_URL: https://github.com/FranciscoMoretti/GitHubBar/releases/latest/download/appcast.xml
         GITHUBBAR_SPARKLE_PUBLIC_KEY: ""
       configs:
         Stable:

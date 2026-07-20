@@ -1,6 +1,6 @@
 # GitHub API, authentication, and rate-limit constraints
 
-Research for [Establish GitHub data, authentication, and rate-limit constraints at target scale](https://github.com/FranciscoMoretti/githubbar/issues/3), current as of 14 July 2026.
+Research for [Establish GitHub data, authentication, and rate-limit constraints at target scale](https://github.com/FranciscoMoretti/GitHubBar/issues/3), current as of 14 July 2026.
 
 This note distinguishes GitHub-documented facts from product recommendations and estimates:
 

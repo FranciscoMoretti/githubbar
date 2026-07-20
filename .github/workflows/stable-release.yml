@@ -99,8 +99,8 @@ jobs:
           GITHUBBAR_NOTARY_KEY_ID: ${{ secrets.APPLE_NOTARY_KEY_ID }}
           GITHUBBAR_NOTARY_ISSUER_ID: ${{ secrets.APPLE_NOTARY_ISSUER_ID }}
           GITHUBBAR_SPARKLE_PUBLIC_KEY: ${{ vars.SPARKLE_PUBLIC_KEY }}
-          GITHUBBAR_SPARKLE_FEED_URL: https://github.com/FranciscoMoretti/githubbar/releases/latest/download/appcast.xml
-          GITHUBBAR_DOWNLOAD_URL_PREFIX: https://github.com/FranciscoMoretti/githubbar/releases/download/${{ inputs.tag }}/
+          GITHUBBAR_SPARKLE_FEED_URL: https://github.com/FranciscoMoretti/GitHubBar/releases/latest/download/appcast.xml
+          GITHUBBAR_DOWNLOAD_URL_PREFIX: https://github.com/FranciscoMoretti/GitHubBar/releases/download/${{ inputs.tag }}/
           GITHUBBAR_BUILD_DIR: ${{ runner.temp }}/GitHubBarStable
         run: scripts/package-stable.sh
 

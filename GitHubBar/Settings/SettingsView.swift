@@ -72,8 +72,8 @@ struct SettingsView: View {
                                 .settingsDetail()
                         }
                         Spacer()
-                        Link("Project", destination: URL(string: "https://github.com/FranciscoMoretti/githubbar")!)
-                        Link("Support", destination: URL(string: "https://github.com/FranciscoMoretti/githubbar/issues")!)
+                        Link("Project", destination: URL(string: "https://github.com/FranciscoMoretti/GitHubBar")!)
+                        Link("Support", destination: URL(string: "https://github.com/FranciscoMoretti/GitHubBar/issues")!)
                     }
                     .controlSize(.small)
                 }
