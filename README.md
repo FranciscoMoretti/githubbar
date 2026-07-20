@@ -39,18 +39,20 @@
    shasum -a 256 --check GitHubBar-*.zip.sha256
    ```
 
-3. Unzip GitHubBar, move it to **Applications**, then Control-click the app and choose **Open** the first time.
+3. Unzip GitHubBar and move it to **Applications**.
 
-If macOS still blocks the app, remove quarantine from GitHubBar only:
+Because validation builds are not yet notarized, macOS will block a fresh download on its first launch. Try to open GitHubBar once, then choose **Open Anyway** under **System Settings → Privacy & Security**.
+
+Alternatively, allow GitHubBar from Terminal:
 
 ```sh
 xattr -dr com.apple.quarantine /Applications/GitHubBar.app
 open /Applications/GitHubBar.app
 ```
 
-This does not disable Gatekeeper or other security protections system-wide.
+Both options create an exception for GitHubBar only; they do not disable Gatekeeper system-wide.
 
-GitHubBar requires macOS 14 or newer. Validation builds are universal, ad-hoc signed, and not yet notarized.
+GitHubBar requires macOS 14 or newer. Validation builds run on both Apple silicon and Intel Macs.
 
 ## Privacy
 
