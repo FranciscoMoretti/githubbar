@@ -13,19 +13,26 @@ public struct PullRequestStack: Equatable, Identifiable, Sendable {
         pullRequests.first
     }
 
-    public var githubPullRequestListURL: URL? {
-        guard let repositoryNameWithOwner = pullRequests.first?.repositoryNameWithOwner,
+    public var githubCompareURL: URL? {
+        guard let root = pullRequests.first,
+              let top = pullRequests.last,
+              let baseRefName = root.baseRefName,
+              let headRefName = top.headRefName,
+              let encodedBaseRefName = percentEncodedRefName(baseRefName),
+              let encodedHeadRefName = percentEncodedRefName(headRefName),
+              let repositoryNameWithOwner = pullRequests.first?.repositoryNameWithOwner,
               pullRequests.allSatisfy({ $0.repositoryNameWithOwner == repositoryNameWithOwner }) else {
             return nil
         }
-        var components = URLComponents(
-            string: "https://github.com/\(repositoryNameWithOwner)/pulls"
+        return URL(
+            string: "https://github.com/\(repositoryNameWithOwner)/compare/" +
+                "\(encodedBaseRefName)...\(encodedHeadRefName)"
         )
-        let numbers = pullRequests.map { String($0.number) }.joined(separator: " OR ")
-        components?.queryItems = [
-            URLQueryItem(name: "q", value: "is:pr (\(numbers))"),
-        ]
-        return components?.url
+    }
+
+    private func percentEncodedRefName(_ refName: String) -> String? {
+        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-._~"))
+        return refName.addingPercentEncoding(withAllowedCharacters: allowed)
     }
 }
 

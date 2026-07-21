@@ -266,16 +266,17 @@ extension StatusItemController: NSMenuDelegate {
                 pullRequestItem(pullRequest, width: Self.stackSubmenuWidth)
             )
         }
-        if let githubURL = stack.githubPullRequestListURL {
+        if let githubURL = stack.githubCompareURL {
             submenu.addItem(.separator())
-            let openStack = NSMenuItem(
-                title: "Open stack on GitHub ↗",
+            let compareStack = NSMenuItem(
+                title: "Compare stack on GitHub ↗",
                 action: #selector(openURL(_:)),
                 keyEquivalent: ""
             )
-            openStack.target = self
-            openStack.representedObject = githubURL as NSURL
-            submenu.addItem(openStack)
+            compareStack.target = self
+            compareStack.representedObject = githubURL as NSURL
+            compareStack.toolTip = "View the combined changes from the Stack root base to the top branch."
+            submenu.addItem(compareStack)
         }
         return submenu
     }

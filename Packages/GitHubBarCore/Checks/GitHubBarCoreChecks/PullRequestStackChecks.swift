@@ -41,9 +41,31 @@ enum PullRequestStackChecks {
             failures: &failures
         )
         check(
-            stacks.first?.githubPullRequestListURL?.absoluteString ==
-                "https://github.com/alaro-ai/alaro/pulls?q=is:pr%20(2872%20OR%202873%20OR%202874)",
-            "A Pull request stack exposes an exact GitHub PR-list URL",
+            stacks.first?.githubCompareURL?.absoluteString ==
+                "https://github.com/alaro-ai/alaro/compare/main...skills-3",
+            "A Pull request stack exposes its full GitHub comparison URL",
+            failures: &failures
+        )
+
+        let slashBranchRoot = pullRequest(
+            id: "PR-46",
+            number: 46,
+            base: "main",
+            head: "codex/portless-4-lifecycle-engine",
+            updatedAt: 1
+        )
+        let slashBranchTop = pullRequest(
+            id: "PR-47",
+            number: 47,
+            base: "codex/portless-4-lifecycle-engine",
+            head: "codex/portless-5-instance-dashboard",
+            updatedAt: 2
+        )
+        check(
+            PullRequestStackResolver.stacks(in: [slashBranchRoot, slashBranchTop])
+                .first?.githubCompareURL?.absoluteString ==
+                "https://github.com/alaro-ai/alaro/compare/main...codex%2Fportless-5-instance-dashboard",
+            "GitHub comparison URLs preserve branch names containing slashes",
             failures: &failures
         )
 
