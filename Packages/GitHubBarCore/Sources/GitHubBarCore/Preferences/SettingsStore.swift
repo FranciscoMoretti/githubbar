@@ -2,20 +2,57 @@ import Foundation
 
 public struct AppSettings: Codable, Equatable, Sendable {
     public var selectedLogin: String?
-    public var repositoryScope: RepositoryScope
+    public var pinnedRepositories: Set<PinnedRepository>
     public var refreshCadence: RefreshCadence
     public var launchAtLogin: Bool
 
     public init(
         selectedLogin: String? = nil,
-        repositoryScope: RepositoryScope = .all,
+        pinnedRepositories: Set<PinnedRepository> = [],
         refreshCadence: RefreshCadence = .fiveMinutes,
         launchAtLogin: Bool = false
     ) {
         self.selectedLogin = selectedLogin
-        self.repositoryScope = repositoryScope
+        self.pinnedRepositories = pinnedRepositories
         self.refreshCadence = refreshCadence
         self.launchAtLogin = launchAtLogin
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case selectedLogin, repositoryScope, pinnedRepositoryIDs, pinnedRepositories, refreshCadence, launchAtLogin
+    }
+
+    private enum LegacyRepositoryScope: Codable {
+        case all
+        case selected(Set<String>)
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        selectedLogin = try container.decodeIfPresent(String.self, forKey: .selectedLogin)
+        if let repositories = try container.decodeIfPresent(Set<PinnedRepository>.self, forKey: .pinnedRepositories) {
+            pinnedRepositories = repositories
+        } else {
+            let explicitIDs = try container.decodeIfPresent(Set<String>.self, forKey: .pinnedRepositoryIDs)
+            let legacyScope = try container.decodeIfPresent(LegacyRepositoryScope.self, forKey: .repositoryScope)
+            let migratedIDs: Set<String> = explicitIDs ?? {
+                guard case let .selected(repositoryIDs)? = legacyScope else { return [] }
+                return repositoryIDs
+            }()
+            pinnedRepositories = Set(migratedIDs.map {
+                PinnedRepository(id: $0, nameWithOwner: $0)
+            })
+        }
+        refreshCadence = try container.decodeIfPresent(RefreshCadence.self, forKey: .refreshCadence) ?? .fiveMinutes
+        launchAtLogin = try container.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? false
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(selectedLogin, forKey: .selectedLogin)
+        try container.encode(pinnedRepositories, forKey: .pinnedRepositories)
+        try container.encode(refreshCadence, forKey: .refreshCadence)
+        try container.encode(launchAtLogin, forKey: .launchAtLogin)
     }
 }
 

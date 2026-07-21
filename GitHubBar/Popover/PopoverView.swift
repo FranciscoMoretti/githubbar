@@ -200,8 +200,8 @@ struct PopoverView: View {
     }
 
     private var showsRepositoryInRows: Bool {
-        if case let .selected(repositoryIDs) = appModel.state.repositoryScope,
-           repositoryIDs.count == 1 {
+        if appModel.state.repositoryScope == .pinned,
+           appModel.state.pinnedRepositoryIDs.count == 1 {
             return false
         }
         return true
@@ -211,15 +211,15 @@ struct PopoverView: View {
         switch appModel.state.repositoryScope {
         case .all:
             .all
-        case let .selected(repositoryIDs):
-            .selected(repositoryIDs.sorted())
+        case .pinned:
+            .pinned
         }
     }
 }
 
 private enum RepositoryScopeScrollIdentity: Hashable {
     case all
-    case selected([String])
+    case pinned
 }
 
 private struct InitialWorkloadLoadingView: View {

@@ -72,7 +72,8 @@ public actor WorkloadEngine {
         case .launch:
             let loadedSettings = await settingsStore.load()
             settings = loadedSettings
-            state.repositoryScope = loadedSettings.repositoryScope
+            state.repositoryScope = .all
+            state.pinnedRepositories = loadedSettings.pinnedRepositories
             state.refreshCadence = loadedSettings.refreshCadence
             state.launchAtLoginRequested = loadedSettings.launchAtLogin
             state.launchAtLoginStatus = await launchAtLoginController.status()
@@ -109,8 +110,22 @@ public actor WorkloadEngine {
             if let currentSnapshot {
                 applyPresentation(from: currentSnapshot)
             }
+            publish()
+        case let .togglePinnedRepository(repository):
             var currentSettings = await currentSettings()
-            currentSettings.repositoryScope = scope
+            let pinnedRepository = PinnedRepository(
+                id: repository.id,
+                nameWithOwner: repository.nameWithOwner
+            )
+            if currentSettings.pinnedRepositories.remove(pinnedRepository) == nil {
+                currentSettings.pinnedRepositories.insert(pinnedRepository)
+            }
+            state.pinnedRepositories = currentSettings.pinnedRepositories
+            if state.repositoryScope == .pinned {
+                if let currentSnapshot {
+                    applyPresentation(from: currentSnapshot)
+                }
+            }
             settings = currentSettings
             await settingsStore.save(currentSettings)
             publish()
@@ -232,6 +247,7 @@ public actor WorkloadEngine {
             rateLimitRetryTask = nil
             rateLimitAttempt = 0
             apply(snapshot)
+            await enrichPinnedRepositories(using: snapshot.availableRepositories)
             state.refreshHealth = .fresh
             try? await snapshotStore.save(snapshot)
             diagnostic = ReconciliationDiagnostic(
@@ -248,6 +264,7 @@ public actor WorkloadEngine {
             rateLimitRetryTask = nil
             let merged = snapshot.mergingConfirmedUpdates(into: previousSnapshot)
             apply(merged)
+            await enrichPinnedRepositories(using: merged.availableRepositories)
             if metadata.rateLimitEncountered {
                 rateLimitAttempt += 1
                 scheduleRateLimitRetry(after: metadata, generation: reconciliationGeneration)
@@ -436,14 +453,41 @@ public actor WorkloadEngine {
 
     private func applyPresentation(from snapshot: WorkloadSnapshot) {
         let scope = state.repositoryScope
+        let pinnedRepositoryIDs = state.pinnedRepositoryIDs
         state.availableRepositories = snapshot.availableRepositories
         state.needsYourReview = snapshot.needsYourReview.filter { pullRequest in
-            scope.includes(repositoryID: pullRequest.repositoryID)
+            scope.includes(
+                repositoryID: pullRequest.repositoryID,
+                pinnedRepositoryIDs: pinnedRepositoryIDs
+            )
         }
         state.authoredPullRequests = snapshot.authoredPullRequests.filter { pullRequest in
-            scope.includes(repositoryID: pullRequest.repositoryID)
+            scope.includes(
+                repositoryID: pullRequest.repositoryID,
+                pinnedRepositoryIDs: pinnedRepositoryIDs
+            )
         }
         state.lastUpdatedAt = snapshot.capturedAt
+    }
+
+    private func enrichPinnedRepositories(using repositories: [RepositoryChoice]) async {
+        let repositoriesByID = Dictionary(uniqueKeysWithValues: repositories.map { ($0.id, $0) })
+        var didChange = false
+        let enriched = Set(state.pinnedRepositories.map { pinnedRepository in
+            guard let repository = repositoriesByID[pinnedRepository.id],
+                  repository.nameWithOwner != pinnedRepository.nameWithOwner else {
+                return pinnedRepository
+            }
+            didChange = true
+            return PinnedRepository(id: repository.id, nameWithOwner: repository.nameWithOwner)
+        })
+        guard didChange else { return }
+
+        state.pinnedRepositories = enriched
+        var currentSettings = await currentSettings()
+        currentSettings.pinnedRepositories = enriched
+        settings = currentSettings
+        await settingsStore.save(currentSettings)
     }
 
     private func restoreSnapshot(hostname: String, accountLogin: String) async {
@@ -451,6 +495,7 @@ public actor WorkloadEngine {
             return
         }
         apply(snapshot)
+        await enrichPinnedRepositories(using: snapshot.availableRepositories)
         state.refreshHealth = .restoredSnapshot
         publish()
     }

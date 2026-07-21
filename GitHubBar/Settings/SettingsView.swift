@@ -22,9 +22,7 @@ struct SettingsView: View {
                 }
 
                 SettingsSection(title: "Repositories", systemImage: "folder") {
-                    Text("Choose which repositories contribute to both lists and the menu-bar count.")
-                        .settingsDetail()
-                    RepositoryScopeControl(appModel: appModel, style: .settings)
+                    PinnedRepositoriesSettingsView(appModel: appModel)
                 }
 
                 SettingsSection(title: "Refresh", systemImage: "arrow.clockwise") {
@@ -80,7 +78,7 @@ struct SettingsView: View {
             }
             .padding(26)
         }
-        .frame(minWidth: 520, minHeight: 560)
+        .frame(minWidth: 620, minHeight: 650)
         .background(Color(nsColor: .windowBackgroundColor))
     }
 

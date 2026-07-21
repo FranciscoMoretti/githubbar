@@ -25,12 +25,12 @@ enum GitHubBarCoreChecks {
             failures: &failures
         )
 
-        await engine.send(.selectRepositoryScope(.selected(["openai/codex"])))
+        await engine.send(.selectRepositoryScope(.pinned))
         guard let scopedState = await iterator.next() else {
             fatalError("WorkloadEngine ended its state stream before publishing a Repository scope change")
         }
         check(
-            scopedState.repositoryScope == .selected(["openai/codex"]),
+            scopedState.repositoryScope == .pinned,
             "Repository scope changes publish",
             failures: &failures
         )

@@ -81,8 +81,12 @@ The people and teams requested to review a pull request, plus people who have al
 _Avoid_: Reviewer list, assignees, participants
 
 **Repository scope**:
-The device-local set of accessible repositories projected from the Account workload into the Active workload. It controls visible pull requests and the Review count, defaults to all accessible repositories, and does not cause Reconciliation when changed.
+The session-local All or Pinned view projected from the Account workload into the Active workload. It controls visible pull requests and the Review count, defaults to All at launch, and does not cause Reconciliation when changed.
 _Avoid_: Mute list, notification filter
+
+**Pinned repositories**:
+The device-local set of repositories configured in Settings for the Pinned Repository scope. Pin membership persists independently of whether All or Pinned is currently active.
+_Avoid_: Selected repositories, favorites, mute list
 
 **Review count**:
 The number of pull requests in Needs your review under the current Repository scope. It is GitHubBar's only proactive attention signal in the MVP.

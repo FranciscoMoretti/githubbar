@@ -47,7 +47,14 @@ extension StatusItemController: NSMenuDelegate {
     private func populateStatusMenu() {
         statusMenu.removeAllItems()
         statusMenu.addItem(headerItem())
-        statusMenu.addItem(repositoryScopeItem())
+        statusMenu.addItem(repositoryFilterItem())
+
+        if appModel.state.repositoryScope == .pinned,
+           appModel.state.pinnedRepositories.isEmpty {
+            addNoPinnedRepositoriesState()
+            addActions()
+            return
+        }
 
         addSection(
             .needsYourReview,
@@ -70,6 +77,27 @@ extension StatusItemController: NSMenuDelegate {
         )
 
         addActions()
+    }
+
+    private func addNoPinnedRepositoriesState() {
+        statusMenu.addItem(.separator())
+
+        let empty = NSMenuItem(
+            title: "No pinned repositories",
+            action: nil,
+            keyEquivalent: ""
+        )
+        empty.isEnabled = false
+        setSubtitle("Choose the repositories you care about on this Mac.", on: empty)
+        statusMenu.addItem(empty)
+
+        let manage = NSMenuItem(
+            title: "Choose repositories in Settings…",
+            action: #selector(openSettings),
+            keyEquivalent: ""
+        )
+        manage.target = self
+        statusMenu.addItem(manage)
     }
 
     private func addSection(
@@ -103,34 +131,24 @@ extension StatusItemController: NSMenuDelegate {
         return item
     }
 
-    private func repositoryScopeItem() -> NSMenuItem {
-        let item = NSMenuItem(title: "Repositories", action: nil, keyEquivalent: "")
-        setSubtitle(repositoryScopeLabel, on: item)
-        let submenu = NSMenu()
-        submenu.autoenablesItems = false
-        submenu.addItem(repositoryItem(title: "All repositories", scope: .all))
-        if !appModel.state.availableRepositories.isEmpty {
-            submenu.addItem(.separator())
-        }
-        for repository in appModel.state.availableRepositories {
-            submenu.addItem(repositoryItem(
-                title: repository.nameWithOwner,
-                scope: .selected([repository.id])
-            ))
-        }
-        item.submenu = submenu
-        return item
-    }
-
-    private func repositoryItem(title: String, scope: RepositoryScope) -> NSMenuItem {
-        let item = NSMenuItem(
-            title: title,
-            action: #selector(selectRepository(_:)),
-            keyEquivalent: ""
+    private func repositoryFilterItem() -> NSMenuItem {
+        let item = NSMenuItem()
+        let view = StatusMenuRepositoryFilter(
+            selection: appModel.state.repositoryScope,
+            pinnedCount: appModel.state.pinnedRepositoryIDs.count,
+            onSelect: { [weak self] scope in
+                self?.selectRepositoryScope(scope)
+            },
+            onManage: { [weak self] in
+                self?.statusMenu.cancelTracking()
+                self?.actions.openSettings()
+            }
         )
-        item.target = self
-        item.representedObject = RepositoryScopeBox(scope)
-        item.state = appModel.state.repositoryScope == scope ? .on : .off
+        .frame(width: Self.menuWidth, height: 38)
+        let hosting = NSHostingView(rootView: view)
+        hosting.frame = NSRect(x: 0, y: 0, width: Self.menuWidth, height: 38)
+        item.view = hosting
+        item.isEnabled = true
         return item
     }
 
@@ -183,9 +201,9 @@ extension StatusItemController: NSMenuDelegate {
         var qualifiers = ["is:open", "is:pr"] + section.searchQualifiers.map {
             $0.replacingOccurrences(of: "@me", with: login)
         }
-        if case let .selected(repositoryIDs) = appModel.state.repositoryScope,
-           repositoryIDs.count == 1,
-           let repositoryID = repositoryIDs.first,
+        if appModel.state.repositoryScope == .pinned,
+           appModel.state.pinnedRepositoryIDs.count == 1,
+           let repositoryID = appModel.state.pinnedRepositoryIDs.first,
            let repository = appModel.state.availableRepositories.first(where: { $0.id == repositoryID }) {
             qualifiers.append("repo:\(repository.nameWithOwner)")
         }
@@ -262,23 +280,10 @@ extension StatusItemController: NSMenuDelegate {
         return "Updated \(lastUpdatedAt.formatted(.relative(presentation: .named)))"
     }
 
-    private var repositoryScopeLabel: String {
-        switch appModel.state.repositoryScope {
-        case .all:
-            return "All repositories"
-        case let .selected(repositoryIDs):
-            if repositoryIDs.count == 1,
-               let repositoryID = repositoryIDs.first,
-               let repository = appModel.state.availableRepositories.first(where: { $0.id == repositoryID }) {
-                return repository.nameWithOwner
-            }
-            return "\(repositoryIDs.count) selected"
-        }
-    }
-
-    @objc private func selectRepository(_ sender: NSMenuItem) {
-        guard let box = sender.representedObject as? RepositoryScopeBox else { return }
-        appModel.send(.selectRepositoryScope(box.scope))
+    private func selectRepositoryScope(_ scope: RepositoryScope) {
+        guard scope != appModel.state.repositoryScope else { return }
+        pendingRepositoryScope = scope
+        appModel.send(.selectRepositoryScope(scope))
     }
 
     @objc private func openURL(_ sender: NSMenuItem) {
@@ -305,6 +310,22 @@ extension StatusItemController: NSMenuDelegate {
     private static let menuWidth: CGFloat = 560
     private static let pullRequestRowHeight: CGFloat = 25
     private static let pullRequestLimit = 5
+}
+
+extension StatusItemController {
+    func updateStatusMenu(for state: AppPresentationState) {
+        guard let pendingRepositoryScope,
+              pendingRepositoryScope == state.repositoryScope,
+              isStatusMenuOpen else {
+            rebuildStatusMenu()
+            return
+        }
+        self.pendingRepositoryScope = nil
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.isStatusMenuOpen else { return }
+            self.populateStatusMenu()
+        }
+    }
 }
 
 private enum StatusMenuSection {
@@ -457,10 +478,52 @@ private struct StatusMenuAuthorAvatar: View {
     }
 }
 
-private final class RepositoryScopeBox: NSObject {
-    let scope: RepositoryScope
+private struct StatusMenuRepositoryFilter: View {
+    let selection: RepositoryScope
+    let pinnedCount: Int
+    let onSelect: (RepositoryScope) -> Void
+    let onManage: () -> Void
 
-    init(_ scope: RepositoryScope) {
-        self.scope = scope
+    var body: some View {
+        HStack(spacing: 8) {
+            HStack(spacing: 2) {
+                filterButton("All", filter: .all)
+                filterButton("Pinned \(pinnedCount)", filter: .pinned)
+            }
+            .padding(3)
+            .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 7))
+
+            Spacer()
+
+            Button(action: onManage) {
+                Label("Manage pins", systemImage: "slider.horizontal.3")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .help("Manage pinned repositories in Settings")
+        }
+        .padding(.horizontal, 11)
+        .environment(\.colorScheme, .dark)
+    }
+
+    private func filterButton(_ title: String, filter: RepositoryScope) -> some View {
+        Button {
+            onSelect(filter)
+        } label: {
+            Text(title)
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(selection == filter ? Color.primary : Color.secondary)
+                .frame(minWidth: 78)
+                .padding(.vertical, 5)
+                .background {
+                    if selection == filter {
+                        RoundedRectangle(cornerRadius: 5)
+                            .fill(Color(nsColor: .selectedControlColor).opacity(0.75))
+                    }
+                }
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }

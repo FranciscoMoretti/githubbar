@@ -1,20 +1,9 @@
 import GitHubBarCore
 import SwiftUI
 
-enum RepositoryScopeControlStyle {
-    case popover
-    case settings
-}
-
 struct RepositoryScopeControl: View {
     @Bindable var appModel: AppModel
-    let style: RepositoryScopeControlStyle
     @State private var isPickerPresented = false
-
-    init(appModel: AppModel, style: RepositoryScopeControlStyle = .popover) {
-        self.appModel = appModel
-        self.style = style
-    }
 
     var body: some View {
         Button {
@@ -24,14 +13,7 @@ struct RepositoryScopeControl: View {
                 Image(systemName: "folder")
                     .frame(width: 16)
                     .foregroundStyle(.secondary)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(style == .popover ? "Repositories" : "Repository scope")
-                    if style == .settings {
-                        Text("Saved locally on this Mac")
-                            .font(.system(size: 9))
-                            .foregroundStyle(.secondary)
-                    }
-                }
+                Text("Repositories")
                 Spacer(minLength: 8)
                 Text(scopeLabel)
                     .font(.system(size: 9.5))
@@ -45,16 +27,15 @@ struct RepositoryScopeControl: View {
         }
         .buttonStyle(.plain)
         .focusable(true)
-        .focusEffectDisabled(style == .popover)
-        .padding(.horizontal, style == .popover ? 18 : 0)
-        .frame(height: style == .popover ? 32 : 40)
+        .focusEffectDisabled()
+        .padding(.horizontal, 18)
+        .frame(height: 32)
         .accessibilityLabel("Choose repositories. Current selection: \(scopeLabel)")
         .popover(
             isPresented: $isPickerPresented,
-            arrowEdge: style == .popover ? .leading : .top
+            arrowEdge: .leading
         ) {
             RepositoryPicker(
-                repositories: appModel.state.availableRepositories,
                 currentScope: appModel.state.repositoryScope
             ) { scope in
                 appModel.send(.selectRepositoryScope(scope))
@@ -66,33 +47,22 @@ struct RepositoryScopeControl: View {
         switch appModel.state.repositoryScope {
         case .all:
             return "All repositories"
-        case let .selected(repositoryIDs):
-            if repositoryIDs.isEmpty { return "No repositories" }
-            if repositoryIDs.count == 1,
-               let repositoryID = repositoryIDs.first,
-               let repository = appModel.state.availableRepositories.first(where: { $0.id == repositoryID }) {
-                return repository.nameWithOwner
-            }
-            return repositoryIDs.count == 1 ? "1 unavailable" : "\(repositoryIDs.count) selected"
+        case .pinned:
+            return "Pinned repositories"
         }
     }
 }
 
 private struct RepositoryPicker: View {
-    let repositories: [RepositoryChoice]
     let currentScope: RepositoryScope
     let onSelect: (RepositoryScope) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @State private var searchText = ""
-    @FocusState private var searchIsFocused: Bool
 
     init(
-        repositories: [RepositoryChoice],
         currentScope: RepositoryScope,
         onSelect: @escaping (RepositoryScope) -> Void
     ) {
-        self.repositories = repositories
         self.currentScope = currentScope
         self.onSelect = onSelect
     }
@@ -100,80 +70,27 @@ private struct RepositoryPicker: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Repositories")
+                Text("Repository view")
                     .font(.system(size: 13, weight: .semibold))
-                Text("This selection is saved on this Mac and controls both lists and the Review count.")
+                Text("Pins are configured in Settings and saved on this Mac.")
                     .font(.system(size: 9))
                     .foregroundStyle(.secondary)
-                TextField("Search repositories", text: $searchText)
-                    .textFieldStyle(.roundedBorder)
-                    .focused($searchIsFocused)
-                    .accessibilityLabel("Search repositories")
             }
             .padding(12)
 
             Divider()
 
-            ScrollView {
-                LazyVStack(spacing: 2) {
-                    repositoryOption(
-                        title: "All repositories",
-                        subtitle: "\(repositories.count) accessible",
-                        isSelected: currentScope == .all
-                    ) {
-                        select(.all)
-                    }
-
-                    ForEach(filteredRepositories) { repository in
-                        repositoryOption(
-                            title: repository.nameWithOwner,
-                            subtitle: nil,
-                            isSelected: selectedRepositoryIDs.contains(repository.id)
-                        ) {
-                            select(.selected([repository.id]))
-                        }
-                    }
-
-                    if filteredRepositories.isEmpty {
-                        Text("No repositories match your search.")
-                            .font(.system(size: 10))
-                            .foregroundStyle(.secondary)
-                            .padding(.vertical, 24)
-                    }
+            VStack(spacing: 2) {
+                repositoryOption(title: "All repositories", isSelected: currentScope == .all) {
+                    select(.all)
                 }
-                .padding(8)
+                repositoryOption(title: "Pinned repositories", isSelected: currentScope == .pinned) {
+                    select(.pinned)
+                }
             }
-
-            if unavailableSelectionCount > 0 {
-                Label(
-                    "\(unavailableSelectionCount) selected \(unavailableSelectionCount == 1 ? "repository is" : "repositories are") no longer accessible.",
-                    systemImage: "exclamationmark.triangle"
-                )
-                .font(.system(size: 9))
-                .foregroundStyle(.yellow)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-            }
-
+            .padding(8)
         }
-        .frame(width: 330, height: 410)
-        .onAppear { searchIsFocused = true }
-    }
-
-    private var filteredRepositories: [RepositoryChoice] {
-        guard !searchText.isEmpty else { return repositories }
-        return repositories.filter {
-            $0.nameWithOwner.localizedCaseInsensitiveContains(searchText)
-        }
-    }
-
-    private var selectedRepositoryIDs: Set<String> {
-        currentScope.selectedRepositoryIDs
-    }
-
-    private var unavailableSelectionCount: Int {
-        let availableIDs = Set(repositories.map(\.id))
-        return selectedRepositoryIDs.subtracting(availableIDs).count
+        .frame(width: 280)
     }
 
     private func select(_ scope: RepositoryScope) {
@@ -183,7 +100,6 @@ private struct RepositoryPicker: View {
 
     private func repositoryOption(
         title: String,
-        subtitle: String?,
         isSelected: Bool,
         action: @escaping () -> Void
     ) -> some View {
@@ -195,11 +111,6 @@ private struct RepositoryPicker: View {
                     Text(title)
                         .font(.system(size: 10))
                         .lineLimit(1)
-                    if let subtitle {
-                        Text(subtitle)
-                            .font(.system(size: 8.5))
-                            .foregroundStyle(.secondary)
-                    }
                 }
                 Spacer(minLength: 0)
             }

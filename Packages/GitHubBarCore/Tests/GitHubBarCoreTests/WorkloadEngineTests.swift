@@ -30,10 +30,10 @@ final class WorkloadEngineTests: XCTestCase {
         var iterator = stream.makeAsyncIterator()
         _ = await iterator.next()
 
-        await engine.send(.selectRepositoryScope(.selected(["openai/codex"])))
+        await engine.send(.selectRepositoryScope(.pinned))
         let state = try XCTUnwrap(await iterator.next())
 
-        XCTAssertEqual(state.repositoryScope, .selected(["openai/codex"]))
+        XCTAssertEqual(state.repositoryScope, .pinned)
     }
 
     func testChangingRepositoryScopeFiltersCanonicalSnapshotWithoutReconciling() async throws {
@@ -42,21 +42,31 @@ final class WorkloadEngineTests: XCTestCase {
             accountConnection: ConnectedTestAccountConnection(),
             workloadClient: workloadClient,
             settingsStore: InMemorySettingsStore(
-                settings: AppSettings(selectedLogin: "FranciscoMoretti")
+                settings: AppSettings(
+                    selectedLogin: "FranciscoMoretti",
+                    pinnedRepositories: [
+                        PinnedRepository(id: "REPO-A", nameWithOwner: "owner/a"),
+                    ]
+                )
             )
         )
 
         await engine.send(.launch)
         XCTAssertEqual(await workloadClient.requestCount, 1)
 
-        await engine.send(.selectRepositoryScope(.selected(["REPO-A"])))
+        await engine.send(.selectRepositoryScope(.pinned))
         var state = try await currentState(of: engine)
         XCTAssertEqual(state.needsYourReview.map(\.repositoryID), ["REPO-A"])
         XCTAssertEqual(state.reviewCount, 1)
         XCTAssertFalse(state.isRefreshing)
         XCTAssertEqual(await workloadClient.requestCount, 1)
 
-        await engine.send(.selectRepositoryScope(.selected(["REPO-B"])))
+        await engine.send(.togglePinnedRepository(
+            RepositoryChoice(id: "REPO-A", nameWithOwner: "owner/a")
+        ))
+        await engine.send(.togglePinnedRepository(
+            RepositoryChoice(id: "REPO-B", nameWithOwner: "owner/b")
+        ))
         state = try await currentState(of: engine)
         XCTAssertEqual(state.needsYourReview.map(\.repositoryID), ["REPO-B"])
         XCTAssertEqual(state.reviewCount, 1)

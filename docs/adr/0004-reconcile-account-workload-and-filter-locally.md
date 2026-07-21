@@ -1,10 +1,11 @@
 ---
-status: accepted
+status: superseded
+superseded-by: 0005-keep-repository-scope-session-local.md
 ---
 
 # Reconcile the account workload and filter locally
 
-GitHubBar will reconcile one account-wide workload containing every open Review request and Authored pull request visible through the Monitored account's Access coverage. Repository scope is a persisted, device-local presentation filter over that workload; changing it does not perform network work.
+GitHubBar will reconcile one account-wide workload containing every open Review request and Authored pull request visible through the Monitored account's Access coverage. Repository scope is a device-local presentation filter over that workload; changing it does not perform network work. ADR-0005 supersedes the persistence part of this decision.
 
 ## Considered options
 

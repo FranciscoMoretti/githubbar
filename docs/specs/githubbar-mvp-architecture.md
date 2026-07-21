@@ -108,7 +108,7 @@ The interface loads, atomically saves, and clears a versioned account-bound Snap
 
 ### SettingsStore
 
-The interface loads and saves typed preferences. The production adapter uses UserDefaults for selected login, Repository scope, refresh cadence, launch-at-login choice, and update preferences. No database or Keychain is required for the MVP.
+The interface loads and saves typed preferences. The production adapter uses UserDefaults for selected login, Pinned repositories, refresh cadence, launch-at-login choice, and update preferences. The active Repository scope is session-only and defaults to All at launch. No database or Keychain is required for the MVP.
 
 ### Clock and refresh policy
 
@@ -139,7 +139,7 @@ Sparkle is not visible to `GitHubBarCore`.
 - A partial reconciliation merges successful updates without absence-based deletion.
 - A total failure retains the last useful Snapshot and Review count.
 - Missing GitHub CLI, missing authentication, or a removed selected account produces Account connection required and does not show another account's Snapshot.
-- Repository scope controls discovery, both lists, and Review count. It defaults to all accessible repositories and persists locally.
+- Repository scope switches between All and the device-local Pinned repositories and controls both lists and Review count. It is session-only and defaults to All at launch; Pin membership persists locally. Pin changes and scope changes re-project the retained Account workload without Reconciliation.
 - The MVP contains no notification engine, snooze, mute, unread state, notification history, or transition-detection subsystem.
 
 Store no pull-request history beyond the active Snapshot. Switching or removing accounts clears or isolates private cached metadata by GitHub host and monitored-account ID.
@@ -152,7 +152,7 @@ Record structured local OSLog diagnostics for refresh reason, duration, GraphQL 
 
 ## Settings and presentation acceptance
 
-Settings contains Account connection, Repository scope, refresh cadence, launch at login, updates, and About. It contains no notification, snooze, mute, workflow, or history settings.
+Settings contains Account connection, a searchable Pinned-repository table, refresh cadence, launch at login, updates, and About. The menu exposes compact All and Pinned scope tabs. It contains no notification, snooze, mute, workflow, or history settings.
 
 Both PR section headings remain present when empty and show a quiet section-level message. Account connection and first-load failures remain global states rather than empty-list messages.
 

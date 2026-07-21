@@ -4,6 +4,7 @@ public struct AppPresentationState: Codable, Equatable, Sendable {
     public var accountConnection: AccountConnectionPresentation
     public var refreshHealth: RefreshHealthPresentation
     public var repositoryScope: RepositoryScope
+    public var pinnedRepositories: Set<PinnedRepository>
     public var availableRepositories: [RepositoryChoice]
     public var needsYourReview: [PullRequestPresentation]
     public var authoredPullRequests: [PullRequestPresentation]
@@ -14,7 +15,7 @@ public struct AppPresentationState: Codable, Equatable, Sendable {
     public var launchAtLoginStatus: LaunchAtLoginStatus
 
     private enum CodingKeys: String, CodingKey {
-        case accountConnection, refreshHealth, repositoryScope, availableRepositories
+        case accountConnection, refreshHealth, repositoryScope, pinnedRepositories, availableRepositories
         case needsYourReview = "waitingForReview"
         case authoredPullRequests, lastUpdatedAt, isRefreshing, refreshCadence
         case launchAtLoginRequested, launchAtLoginStatus
@@ -24,6 +25,7 @@ public struct AppPresentationState: Codable, Equatable, Sendable {
         accountConnection: AccountConnectionPresentation,
         refreshHealth: RefreshHealthPresentation,
         repositoryScope: RepositoryScope,
+        pinnedRepositories: Set<PinnedRepository> = [],
         availableRepositories: [RepositoryChoice],
         needsYourReview: [PullRequestPresentation],
         authoredPullRequests: [PullRequestPresentation],
@@ -36,6 +38,7 @@ public struct AppPresentationState: Codable, Equatable, Sendable {
         self.accountConnection = accountConnection
         self.refreshHealth = refreshHealth
         self.repositoryScope = repositoryScope
+        self.pinnedRepositories = pinnedRepositories
         self.availableRepositories = availableRepositories
         self.needsYourReview = needsYourReview
         self.authoredPullRequests = authoredPullRequests
@@ -50,6 +53,7 @@ public struct AppPresentationState: Codable, Equatable, Sendable {
         accountConnection: .notChecked,
         refreshHealth: .idle,
         repositoryScope: .all,
+        pinnedRepositories: [],
         availableRepositories: [],
         needsYourReview: [],
         authoredPullRequests: [],
@@ -62,6 +66,10 @@ public struct AppPresentationState: Codable, Equatable, Sendable {
 
     public var reviewCount: Int {
         needsYourReview.count
+    }
+
+    public var pinnedRepositoryIDs: Set<String> {
+        Set(pinnedRepositories.map(\.id))
     }
 
     public var reviewCountAccessibilityLabel: String {

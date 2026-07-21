@@ -4,6 +4,7 @@ import GitHubBarCore
 enum RepositoryScopeChecks {
     static func run() async -> [String] {
         var failures: [String] = []
+        failures.append(contentsOf: checkLegacyPinnedRepositoryMigration())
         failures.append(contentsOf: await checkImmediateProjection())
         let workloadClient = RacingWorkloadClient()
         let settingsStore = InMemorySettingsStore(
@@ -26,16 +27,46 @@ enum RepositoryScopeChecks {
 
         let launch = Task { await engine.send(.launch) }
         _ = await startIterator.next()
-        await engine.send(.selectRepositoryScope(.selected(["REPO-1"])))
+        let repositoryOne = RepositoryChoice(id: "REPO-1", nameWithOwner: "owner/one")
+        let repositoryTwo = RepositoryChoice(id: "REPO-2", nameWithOwner: "owner/two")
+        await engine.send(.togglePinnedRepository(repositoryOne))
+        await engine.send(.togglePinnedRepository(repositoryTwo))
+        await engine.send(.selectRepositoryScope(.pinned))
+        await engine.send(.togglePinnedRepository(repositoryTwo))
         await launch.value
         try? await Task.sleep(for: .milliseconds(20))
         recording.cancel()
 
         let finalState = await recorder.values.last
-        check(finalState?.repositoryScope == .selected(["REPO-1"]), "Latest Repository scope remains selected", failures: &failures)
+        check(finalState?.repositoryScope == .pinned, "Latest Repository scope remains Pinned", failures: &failures)
+        check(finalState?.pinnedRepositoryIDs == ["REPO-1"], "Pinned repositories publish independently of the active scope", failures: &failures)
         check(finalState?.authoredPullRequests.map(\.id) == ["IN-SCOPE"], "A completed reconciliation is projected through the latest Repository scope", failures: &failures)
         check(await workloadClient.requestCount == 1, "A Repository scope change does not reconcile", failures: &failures)
-        check(await settingsStore.load().repositoryScope == .selected(["REPO-1"]), "Repository scope persists", failures: &failures)
+        check(
+            await settingsStore.load().pinnedRepositories == [
+                PinnedRepository(id: "REPO-1", nameWithOwner: "owner/one"),
+            ],
+            "Pinned repositories persist on this Mac with their last-known names",
+            failures: &failures
+        )
+        return failures
+    }
+
+    private static func checkLegacyPinnedRepositoryMigration() -> [String] {
+        var failures: [String] = []
+        do {
+            let legacyData = try JSONEncoder().encode(LegacySettingsFixture())
+            let migrated = try JSONDecoder().decode(AppSettings.self, from: legacyData)
+            check(
+                migrated.pinnedRepositories == [
+                    PinnedRepository(id: "REPO-1", nameWithOwner: "REPO-1"),
+                ],
+                "A legacy selected Repository scope migrates into pinned repositories",
+                failures: &failures
+            )
+        } catch {
+            failures.append("FAILED: Legacy Repository scope migration threw \(error)")
+        }
         return failures
     }
 
@@ -55,10 +86,18 @@ enum RepositoryScopeChecks {
                 pullRequest(id: "AUTHORED-2", repositoryID: "REPO-2"),
             ]
         )
+        let settingsStore = InMemorySettingsStore(
+            settings: AppSettings(
+                selectedLogin: "FranciscoMoretti",
+                pinnedRepositories: [
+                    PinnedRepository(id: "REPO-1", nameWithOwner: "REPO-1"),
+                ]
+            )
+        )
         let engine = WorkloadEngine(
             accountConnection: DelayedScopeAccountConnection(),
             snapshotStore: InMemorySnapshotStore(snapshot: snapshot),
-            settingsStore: InMemorySettingsStore(settings: AppSettings(selectedLogin: "FranciscoMoretti"))
+            settingsStore: settingsStore
         )
         let states = await engine.states()
         let recorder = ScopeStateRecorder()
@@ -71,12 +110,12 @@ enum RepositoryScopeChecks {
             if await recorder.values.contains(where: { $0.authoredPullRequests.count == 2 }) { break }
             try? await Task.sleep(for: .milliseconds(2))
         }
-        await engine.send(.selectRepositoryScope(.selected(["REPO-1"])))
+        await engine.send(.selectRepositoryScope(.pinned))
         for _ in 0..<50 {
-            if await recorder.values.contains(where: { $0.repositoryScope == .selected(["REPO-1"]) }) { break }
+            if await recorder.values.contains(where: { $0.repositoryScope == .pinned }) { break }
             try? await Task.sleep(for: .milliseconds(2))
         }
-        let projectedState = await recorder.values.last(where: { $0.repositoryScope == .selected(["REPO-1"]) })
+        let projectedState = await recorder.values.last(where: { $0.repositoryScope == .pinned })
         await engine.send(.selectRepositoryScope(.all))
         for _ in 0..<50 {
             if await recorder.values.contains(where: {
@@ -111,6 +150,13 @@ enum RepositoryScopeChecks {
             "Returning to all repositories restores the preserved account workload",
             failures: &failures
         )
+        check(
+            await settingsStore.load().pinnedRepositories == [
+                PinnedRepository(id: "REPO-1", nameWithOwner: "owner/one"),
+            ],
+            "A legacy pinned repository ID is enriched and persisted from the available catalog",
+            failures: &failures
+        )
         return failures
     }
 
@@ -131,6 +177,18 @@ enum RepositoryScopeChecks {
     private static func check(_ condition: Bool, _ message: String, failures: inout [String]) {
         if !condition { failures.append("FAILED: \(message)") }
     }
+}
+
+private struct LegacySettingsFixture: Encodable {
+    let selectedLogin: String? = "FranciscoMoretti"
+    let repositoryScope: LegacyRepositoryScopeFixture = .selected(["REPO-1"])
+    let refreshCadence: RefreshCadence = .fiveMinutes
+    let launchAtLogin = false
+}
+
+private enum LegacyRepositoryScopeFixture: Codable {
+    case all
+    case selected(Set<String>)
 }
 
 private struct DelayedScopeAccountConnection: AccountConnection {

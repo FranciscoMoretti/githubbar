@@ -11,6 +11,7 @@ final class StatusItemController: NSObject {
     var isStatusMenuOpen = false
     var highlightedStatusMenuItem: NSMenuItem?
     var registeredShortcut: GitHubBarShortcut?
+    var pendingRepositoryScope: RepositoryScope?
     private var avatarCacheAccountLogin: String?
 
     init(
@@ -53,7 +54,7 @@ final class StatusItemController: NSObject {
         button.image = StatusIconRenderer.image(reviewCount: state.reviewCount)
         button.setAccessibilityTitle("GitHubBar. \(state.reviewCountAccessibilityLabel).")
         button.toolTip = "GitHubBar — \(state.reviewCountAccessibilityLabel)"
-        rebuildStatusMenu()
+        updateStatusMenu(for: state)
     }
 
     private func avatarURLs(in state: AppPresentationState) -> [URL] {

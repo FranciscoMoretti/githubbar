@@ -8,6 +8,7 @@ public enum WorkloadCommand: Equatable, Sendable {
     case requestAccountSelection
     case recheckAccountConnection
     case selectRepositoryScope(RepositoryScope)
+    case togglePinnedRepository(RepositoryChoice)
     case setRefreshCadence(RefreshCadence)
     case setLaunchAtLogin(Bool)
 }
