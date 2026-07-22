@@ -8,9 +8,9 @@
 [![macOS 14+](https://img.shields.io/badge/macOS-14%2B-0d1117?style=flat-square&logo=apple&logoColor=white)](https://github.com/FranciscoMoretti/GitHubBar/releases)
 [![Swift 6](https://img.shields.io/badge/Swift-6-F05138?style=flat-square&logo=swift&logoColor=white)](https://www.swift.org/)
 
-<img src="docs/assets/githubbar-hero.png" alt="GitHubBar showing pull requests grouped by review state" width="100%" />
+<img src="docs/assets/githubbar-hero.png" alt="GitHubBar showing a high-volume pull-request review queue in the macOS menu bar" width="100%" />
 
-**The number in your menu bar is your review queue:** open pull requests waiting for your review across the repositories you care about.
+**The number in your menu bar is your review queue.** Open GitHubBar to see review requests and your own pull requests across the repositories that matter on this Mac.
 
 [Download GitHubBar](https://github.com/FranciscoMoretti/GitHubBar/releases) · [Report an issue](https://github.com/FranciscoMoretti/GitHubBar/issues)
 
@@ -18,10 +18,14 @@
 
 ## Built for review at scale
 
-- See how many pull requests need your review without opening GitHub.
-- Scan authors, repositories, and review state in one native macOS menu.
-- Track your own PRs by next action: returned, needs reviewers, waiting, approved, or draft.
-- Press <kbd>⌥</kbd><kbd>⌘</kbd><kbd>G</kbd> from anywhere and open the right PR instantly.
+- **Know what needs you.** The menu-bar count shows open pull requests currently awaiting your review—GitHubBar's only proactive attention signal.
+- **See your whole review workflow.** Scan Needs your review, Returned to you, Needs reviewers, Waiting for reviewers, Approved, and Drafts in one native menu.
+- **Keep people visible.** Every row shows the author and review roster, so missing reviewers and completed reviews are easy to spot.
+- **Focus each Mac.** Switch instantly between all accessible repositories and a device-local pinned set configured in Settings.
+- **Navigate stacked work.** Linear pull-request stacks collapse into compact, section-aware rows; open the submenu to see every member's current section and reviewers.
+- **Move without the website.** Open any pull request directly, refresh on demand, or press <kbd>⌥</kbd><kbd>⌘</kbd><kbd>G</kbd> from anywhere.
+
+GitHubBar reconciles the full account workload in the background, keeps the latest useful snapshot available, and applies repository scope locally—switching views does not trigger another GitHub request.
 
 ## Install
 
